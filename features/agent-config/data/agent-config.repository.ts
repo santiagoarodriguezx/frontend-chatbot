@@ -1,11 +1,14 @@
-import { agentApi } from "@/lib/api";
+import { apiFetch } from "@/lib/utils";
 import type { AgentConfig } from "@/lib/types";
 
 export const agentConfigRepository = {
   getByCompanyId(companyId: string) {
-    return agentApi.get(companyId);
+    return apiFetch<AgentConfig>(`/agent-config/${companyId}`);
   },
   updateByCompanyId(companyId: string, payload: Partial<AgentConfig>) {
-    return agentApi.update(companyId, payload);
+    return apiFetch<AgentConfig>(`/agent-config/${companyId}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
   },
 };
