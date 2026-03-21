@@ -1,5 +1,6 @@
 import { agentConfigService } from "@/features/agent-config/application/agent-config.service";
 import { companiesService } from "@/features/companies/application/companies.service";
+import { cannedResponsesService } from "@/features/canned-responses/application/canned-responses.service";
 import { dashboardService } from "@/features/dashboard/application/dashboard.service";
 import { knowledgeService } from "@/features/knowledge/application/knowledge.service";
 import { modelsService } from "@/features/models/application/models.service";
@@ -29,6 +30,13 @@ export const toolsApi = {
   listAvailable: toolsService.listAvailable,
   listCompany: toolsService.listCompany,
   upsert: toolsService.upsert,
+};
+
+export const cannedResponsesApi = {
+  list: cannedResponsesService.list,
+  create: cannedResponsesService.create,
+  update: cannedResponsesService.update,
+  delete: cannedResponsesService.delete,
 };
 
 export const dashboardApi = {

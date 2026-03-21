@@ -146,3 +146,16 @@ export interface KnowledgeDoc {
   chunk_index: number;
   created_at: string;
 }
+
+export interface CannedResponse {
+  id: string;
+  company_id: string;
+  intent_key: string;
+  intent_description: string;
+  response_template: string;
+  keywords: string[];
+  is_enabled: boolean;
+  priority: number;
+  created_at: string;
+  updated_at: string;
+}
