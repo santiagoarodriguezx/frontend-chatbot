@@ -1,9 +1,6 @@
 "use client";
-import useSWR, { mutate } from "swr";
-import { useState } from "react";
-import { agentApi } from "@/lib/api";
 import { useCompany } from "@/lib/company-context";
-import type { AgentConfig } from "@/lib/types";
+import { useAgentConfig } from "@/features/agent-config/presentation/use-agent-config";
 import Link from "next/link";
 import {
   Bot,
@@ -27,45 +24,17 @@ const DAY_LABELS: Record<string, string> = {
 
 export default function AgentPage() {
   const companyId = useCompany();
-  const key = `agent-config-${companyId}`;
   const {
-    data: config,
+    current,
+    setField,
+    setHours,
+    save,
+    saveError,
+    saved,
+    saving,
     isLoading,
     error,
-  } = useSWR<AgentConfig>(key, () => agentApi.get(companyId));
-
-  const [form, setForm] = useState<Partial<AgentConfig> | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  const current = form ?? config;
-
-  function setField(field: keyof AgentConfig, value: unknown) {
-    setForm((prev) => ({ ...(prev ?? config ?? {}), [field]: value }));
-  }
-
-  function setHours(day: string, value: string) {
-    setForm((prev) => ({
-      ...(prev ?? config ?? {}),
-      working_hours: {
-        ...((prev ?? config)?.working_hours ?? {}),
-        [day]: value,
-      },
-    }));
-  }
-
-  async function save() {
-    if (!form) return;
-    setSaving(true);
-    try {
-      await agentApi.update(companyId, form);
-      await mutate(key);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } finally {
-      setSaving(false);
-    }
-  }
+  } = useAgentConfig(companyId);
 
   if (isLoading) {
     return (
@@ -236,6 +205,12 @@ export default function AgentPage() {
             </>
           )}
         </button>
+
+        {saveError && (
+          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+            {saveError}
+          </div>
+        )}
       </div>
     </div>
   );
