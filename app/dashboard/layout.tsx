@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { CompanyProvider } from "@/lib/company-context";
 import { companiesApi } from "@/lib/api";
-import { supabase } from "@/lib/supabase-browser";
+import { authService } from "@/features/auth/application/auth.service";
 
 export default function DashboardLayout({
   children,
@@ -26,7 +26,7 @@ export default function DashboardLayout({
     async function bootstrap() {
       const {
         data: { session },
-      } = await supabase.auth.getSession();
+      } = await authService.getSession();
 
       if (!session) {
         router.replace("/login");
@@ -48,7 +48,7 @@ export default function DashboardLayout({
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = authService.onAuthStateChange((_event, session) => {
       if (!session) {
         router.replace("/login");
       }

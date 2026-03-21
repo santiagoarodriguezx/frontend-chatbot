@@ -5,7 +5,6 @@ import { useCompany } from "@/lib/company-context";
 import type { Order } from "@/lib/types";
 import { format } from "date-fns";
 import { ShoppingCart } from "lucide-react";
-import { API_URL } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-50 text-amber-700 border-amber-200",
@@ -24,10 +23,7 @@ export default function OrdersPage() {
   );
 
   async function updateStatus(orderId: string, status: string) {
-    await fetch(
-      `${API_URL}/dashboard/${companyId}/orders/${orderId}/status?status=${status}`,
-      { method: "PATCH" },
-    );
+    await dashboardApi.updateOrderStatus(companyId, orderId, status);
     await mutate(key);
   }
 

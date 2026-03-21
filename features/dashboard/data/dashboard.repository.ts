@@ -48,4 +48,20 @@ export const dashboardRepository = {
       method: "DELETE",
     });
   },
+  updateOrderStatus(companyId: string, orderId: string, status: string) {
+    return apiFetch<void>(
+      `/dashboard/${companyId}/orders/${orderId}/status?status=${status}`,
+      {
+        method: "PATCH",
+      },
+    );
+  },
+  updateAppointmentStatus(companyId: string, appointmentId: string, status: string) {
+    return apiFetch<void>(
+      `/dashboard/${companyId}/appointments/${appointmentId}/status?status=${status}`,
+      {
+        method: "PATCH",
+      },
+    );
+  },
 };

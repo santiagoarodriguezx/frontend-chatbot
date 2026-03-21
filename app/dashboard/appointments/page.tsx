@@ -5,7 +5,6 @@ import { useCompany } from "@/lib/company-context";
 import type { Appointment } from "@/lib/types";
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
-import { API_URL } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-50 text-amber-700 border-amber-200",
@@ -22,10 +21,7 @@ export default function AppointmentsPage() {
   );
 
   async function updateStatus(id: string, status: string) {
-    await fetch(
-      `${API_URL}/dashboard/${companyId}/appointments/${id}/status?status=${status}`,
-      { method: "PATCH" },
-    );
+    await dashboardApi.updateAppointmentStatus(companyId, id, status);
     await mutate(key);
   }
 

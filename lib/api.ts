@@ -41,6 +41,8 @@ export const dashboardApi = {
   createProduct: dashboardService.createProduct,
   updateProduct: dashboardService.updateProduct,
   deleteProduct: dashboardService.deleteProduct,
+  updateOrderStatus: dashboardService.updateOrderStatus,
+  updateAppointmentStatus: dashboardService.updateAppointmentStatus,
 };
 
 export const knowledgeApi = {

@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { agentApi, companiesApi } from "@/lib/api";
-import { supabase } from "@/lib/supabase-browser";
+import { authService } from "@/features/auth/application/auth.service";
 
 type PlanType = "free" | "pro" | "business";
 
@@ -40,7 +40,7 @@ export default function OnboardingPage() {
     async function bootstrap() {
       const {
         data: { session },
-      } = await supabase.auth.getSession();
+      } = await authService.getSession();
 
       if (!session) {
         router.replace("/login");

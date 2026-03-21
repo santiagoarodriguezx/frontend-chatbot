@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase-browser";
 import { agentApi, companiesApi } from "@/lib/api";
+import { authService } from "@/features/auth/application/auth.service";
 
 function slugify(input: string) {
   return input
@@ -54,12 +54,9 @@ export default function RegisterPage() {
       }),
     );
 
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/onboarding`,
-      },
-    });
+    const { error: oauthError } = await authService.signInWithGoogle(
+      `${window.location.origin}/onboarding`,
+    );
 
     if (oauthError) {
       setError(oauthError.message);
@@ -92,10 +89,10 @@ export default function RegisterPage() {
       JSON.stringify({ ...companyPayload, agent_name: agentName || null }),
     );
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await authService.signUp(
       email,
       password,
-    });
+    );
 
     if (signUpError) {
       setLoading(false);

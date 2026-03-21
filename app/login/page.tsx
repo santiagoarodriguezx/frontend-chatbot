@@ -2,8 +2,8 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase-browser";
 import { companiesApi } from "@/lib/api";
+import { authService } from "@/features/auth/application/auth.service";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,7 +33,7 @@ export default function LoginPage() {
     async function checkSession() {
       const {
         data: { session },
-      } = await supabase.auth.getSession();
+      } = await authService.getSession();
       if (mounted && session) {
         try {
           await redirectAfterAuth();
@@ -60,10 +60,10 @@ export default function LoginPage() {
     setSuccess(null);
 
     if (mode === "login") {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await authService.signInWithPassword(
         email,
         password,
-      });
+      );
 
       setLoading(false);
 
@@ -84,10 +84,10 @@ export default function LoginPage() {
       return;
     }
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await authService.signUp(
       email,
       password,
-    });
+    );
 
     setLoading(false);
 
@@ -121,10 +121,7 @@ export default function LoginPage() {
     setSuccess(null);
 
     const redirectTo = `${window.location.origin}/login`;
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo },
-    });
+    const { error: oauthError } = await authService.signInWithGoogle(redirectTo);
 
     if (oauthError) {
       setError(oauthError.message);
