@@ -1,9 +1,7 @@
 import { useMemo, useState } from "react";
 import useSWR, { mutate } from "swr";
 import type { CannedResponse } from "@/lib/types";
-import {
-  cannedResponsesService,
-} from "../application/canned-responses.service";
+import { cannedResponsesService } from "../application/canned-responses.service";
 
 type FormState = {
   intent_key: string;
@@ -37,6 +35,7 @@ export function useCannedResponses(companyId: string) {
   );
 
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState<FormState>(initialFormState);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -53,8 +52,19 @@ export function useCannedResponses(companyId: string) {
     setFormError(null);
   }
 
+  function openCreate() {
+    resetForm();
+    setIsModalOpen(true);
+  }
+
+  function closeModal() {
+    setIsModalOpen(false);
+    resetForm();
+  }
+
   function startEdit(item: CannedResponse) {
     setEditingId(item.id);
+    setIsModalOpen(true);
     setFormError(null);
     setForm({
       intent_key: item.intent_key,
@@ -86,9 +96,11 @@ export function useCannedResponses(companyId: string) {
       }
 
       await mutate(key);
-      resetForm();
+      closeModal();
     } catch (value) {
-      setFormError(value instanceof Error ? value.message : "No se pudo guardar");
+      setFormError(
+        value instanceof Error ? value.message : "No se pudo guardar",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -98,16 +110,19 @@ export function useCannedResponses(companyId: string) {
     await cannedResponsesService.delete(companyId, responseId);
     await mutate(key);
     if (editingId === responseId) {
-      resetForm();
+      closeModal();
     }
   }
 
   return {
+    closeModal,
     editingId,
     error,
     form,
     formError,
     isLoading,
+    isModalOpen,
+    openCreate,
     remove,
     resetForm,
     responses,

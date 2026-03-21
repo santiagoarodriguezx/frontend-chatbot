@@ -14,6 +14,7 @@ import {
   Plus,
   Pencil,
   Trash2,
+  X,
 } from "lucide-react";
 
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
@@ -47,11 +48,13 @@ export default function AgentPage() {
     submit: submitCanned,
     remove: deleteCanned,
     startEdit,
-    resetForm,
+    openCreate,
+    closeModal,
     editingId,
     submitting,
     formError,
     isLoading: loadingCanned,
+    isModalOpen,
   } = useCannedResponses(companyId);
 
   if (isLoading) {
@@ -123,19 +126,6 @@ export default function AgentPage() {
             className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
             value={current.agent_name ?? ""}
             onChange={(e) => setField("agent_name", e.target.value)}
-          />
-        </div>
-
-        {/* Welcome Message */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Welcome Message
-          </label>
-          <textarea
-            className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow resize-none"
-            rows={2}
-            value={current.welcome_message ?? ""}
-            onChange={(e) => setField("welcome_message", e.target.value)}
           />
         </div>
 
@@ -243,121 +233,21 @@ export default function AgentPage() {
             </p>
           </div>
 
-          {editingId && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="px-3 py-2 text-xs rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50"
-            >
-              Cancelar edición
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={openCreate}
+            className="px-3 py-2 text-xs rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-50 inline-flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Agregar
+          </button>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Intent Key
-            </label>
-            <input
-              className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
-              value={form.intent_key}
-              onChange={(e) => setCannedField("intent_key", e.target.value)}
-              placeholder="faq_shipping"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Priority
-            </label>
-            <input
-              type="number"
-              className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
-              value={form.priority}
-              onChange={(e) => setCannedField("priority", Number(e.target.value))}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Intent Description
-          </label>
-          <input
-            className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
-            value={form.intent_description}
-            onChange={(e) =>
-              setCannedField("intent_description", e.target.value)
-            }
-            placeholder="Preguntas sobre envío"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Response Template
-          </label>
-          <textarea
-            rows={3}
-            className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow resize-none"
-            value={form.response_template}
-            onChange={(e) =>
-              setCannedField("response_template", e.target.value)
-            }
-            placeholder="¡Claro! El tiempo de entrega estimado es..."
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Keywords (separadas por coma)
-            </label>
-            <input
-              className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
-              value={form.keywords_text}
-              onChange={(e) => setCannedField("keywords_text", e.target.value)}
-              placeholder="envío, entrega, shipping"
-            />
-          </div>
-
-          <div className="flex items-end">
-            <label className="inline-flex items-center gap-2 text-sm text-neutral-700">
-              <input
-                type="checkbox"
-                checked={form.is_enabled}
-                onChange={(e) => setCannedField("is_enabled", e.target.checked)}
-                className="rounded border-neutral-300"
-              />
-              Enabled
-            </label>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={submitCanned}
-          disabled={submitting}
-          className="w-full flex items-center justify-center gap-2 bg-neutral-950 text-white py-3 rounded-xl font-medium hover:bg-neutral-800 disabled:opacity-50 transition-all duration-200"
-        >
-          <Plus className="w-4 h-4" />
-          {submitting
-            ? "Guardando..."
-            : editingId
-              ? "Actualizar canned response"
-              : "Agregar canned response"}
-        </button>
-
-        {formError && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
-            {formError}
-          </div>
-        )}
 
         <div className="space-y-3 pt-1">
           {loadingCanned ? (
-            <div className="text-sm text-neutral-500">Cargando canned responses...</div>
+            <div className="text-sm text-neutral-500">
+              Cargando canned responses...
+            </div>
           ) : responses.length === 0 ? (
             <div className="text-sm text-neutral-500 border border-dashed border-neutral-200 rounded-xl p-4">
               Aún no hay canned responses configuradas.
@@ -379,7 +269,8 @@ export default function AgentPage() {
                     {item.response_template}
                   </p>
                   <div className="text-xs text-neutral-500 mt-2">
-                    Priority: {item.priority} • {item.is_enabled ? "Enabled" : "Disabled"}
+                    Priority: {item.priority} •{" "}
+                    {item.is_enabled ? "Enabled" : "Disabled"}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -405,6 +296,128 @@ export default function AgentPage() {
           )}
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-neutral-950/40 flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl bg-white rounded-2xl border border-neutral-200/60 p-6 space-y-5 animate-fade-in-up shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-neutral-950">
+                  {editingId ? "Editar canned response" : "Agregar canned response"}
+                </h3>
+                <p className="text-sm text-neutral-500 mt-1">
+                  Define intención, template y palabras clave.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="p-2 rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50"
+                aria-label="Cerrar"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Intent Key
+                </label>
+                <input
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
+                  value={form.intent_key}
+                  onChange={(e) => setCannedField("intent_key", e.target.value)}
+                  placeholder="faq_shipping"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Priority
+                </label>
+                <input
+                  type="number"
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
+                  value={form.priority}
+                  onChange={(e) => setCannedField("priority", Number(e.target.value))}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Intent Description
+              </label>
+              <input
+                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
+                value={form.intent_description}
+                onChange={(e) => setCannedField("intent_description", e.target.value)}
+                placeholder="Preguntas sobre envío"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Response Template
+              </label>
+              <textarea
+                rows={3}
+                className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow resize-none"
+                value={form.response_template}
+                onChange={(e) => setCannedField("response_template", e.target.value)}
+                placeholder="¡Claro! El tiempo de entrega estimado es..."
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Keywords (separadas por coma)
+                </label>
+                <input
+                  className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
+                  value={form.keywords_text}
+                  onChange={(e) => setCannedField("keywords_text", e.target.value)}
+                  placeholder="envío, entrega, shipping"
+                />
+              </div>
+
+              <div className="flex items-end">
+                <label className="inline-flex items-center gap-2 text-sm text-neutral-700">
+                  <input
+                    type="checkbox"
+                    checked={form.is_enabled}
+                    onChange={(e) => setCannedField("is_enabled", e.target.checked)}
+                    className="rounded border-neutral-300"
+                  />
+                  Enabled
+                </label>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={submitCanned}
+              disabled={submitting}
+              className="w-full flex items-center justify-center gap-2 bg-neutral-950 text-white py-3 rounded-xl font-medium hover:bg-neutral-800 disabled:opacity-50 transition-all duration-200"
+            >
+              <Plus className="w-4 h-4" />
+              {submitting
+                ? "Guardando..."
+                : editingId
+                  ? "Actualizar canned response"
+                  : "Agregar canned response"}
+            </button>
+
+            {formError && (
+              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+                {formError}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
