@@ -4,7 +4,8 @@ import { useState } from "react";
 import { dashboardApi } from "@/lib/api";
 import { useCompany } from "@/lib/company-context";
 import type { Product } from "@/lib/types";
-import { Pencil, Trash2, Plus, Package, X } from "lucide-react";
+import { Pencil, Trash2, Plus, Package } from "lucide-react";
+import { AppModal } from "@/components/app-modal";
 
 function ProductModal({
   product,
@@ -20,93 +21,85 @@ function ProductModal({
   );
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl animate-scale-in border border-neutral-200/60">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-neutral-950">
-            {product ? "Edit Product" : "New Product"}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
-          >
-            <X className="w-4 h-4 text-neutral-500" />
-          </button>
-        </div>
-        <div className="space-y-3">
-          {(["name", "description", "category", "image_url"] as const).map(
-            (field) => (
-              <div key={field}>
-                <label className="block text-xs font-medium text-neutral-500 mb-1 capitalize">
-                  {field.replace(/_/g, " ")}
-                </label>
-                <input
-                  className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
-                  value={(form[field] as string) ?? ""}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, [field]: e.target.value }))
-                  }
-                />
-              </div>
-            ),
-          )}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-neutral-500 mb-1">
-                Price
+    <AppModal
+      open
+      onClose={onClose}
+      title={product ? "Edit Product" : "New Product"}
+      maxWidthClassName="max-w-md"
+    >
+      <div className="space-y-3">
+        {(["name", "description", "category", "image_url"] as const).map(
+          (field) => (
+            <div key={field}>
+              <label className="block text-xs font-medium text-neutral-500 mb-1 capitalize">
+                {field.replace(/_/g, " ")}
               </label>
               <input
-                type="number"
                 className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
-                value={form.price ?? 0}
+                value={(form[field] as string) ?? ""}
                 onChange={(e) =>
-                  setForm((p) => ({ ...p, price: parseFloat(e.target.value) }))
+                  setForm((p) => ({ ...p, [field]: e.target.value }))
                 }
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-neutral-500 mb-1">
-                Stock
-              </label>
-              <input
-                type="number"
-                className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
-                value={form.stock ?? 0}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, stock: parseInt(e.target.value) }))
-                }
-              />
-            </div>
-          </div>
-          <label className="flex items-center gap-2 cursor-pointer">
+          ),
+        )}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">
+              Price
+            </label>
             <input
-              type="checkbox"
-              id="is_active"
-              checked={form.is_active ?? true}
+              type="number"
+              className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
+              value={form.price ?? 0}
               onChange={(e) =>
-                setForm((p) => ({ ...p, is_active: e.target.checked }))
+                setForm((p) => ({ ...p, price: parseFloat(e.target.value) }))
               }
-              className="accent-neutral-950"
             />
-            <span className="text-sm text-neutral-700">Active</span>
-          </label>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">
+              Stock
+            </label>
+            <input
+              type="number"
+              className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:border-transparent transition-shadow"
+              value={form.stock ?? 0}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, stock: parseInt(e.target.value) }))
+              }
+            />
+          </div>
         </div>
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={() => onSave(form)}
-            className="flex-1 bg-neutral-950 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors"
-          >
-            Save
-          </button>
-          <button
-            onClick={onClose}
-            className="flex-1 border border-neutral-200 py-2.5 rounded-xl text-sm text-neutral-600 hover:bg-neutral-50 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            id="is_active"
+            checked={form.is_active ?? true}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, is_active: e.target.checked }))
+            }
+            className="accent-neutral-950"
+          />
+          <span className="text-sm text-neutral-700">Active</span>
+        </label>
       </div>
-    </div>
+      <div className="flex gap-3 mt-6">
+        <button
+          onClick={() => onSave(form)}
+          className="flex-1 bg-neutral-950 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors"
+        >
+          Save
+        </button>
+        <button
+          onClick={onClose}
+          className="flex-1 border border-neutral-200 py-2.5 rounded-xl text-sm text-neutral-600 hover:bg-neutral-50 transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </AppModal>
   );
 }
 

@@ -9,7 +9,9 @@ function normalizeKeywords(items: string[] | undefined): string[] {
   return items.map((item) => item.trim()).filter(Boolean);
 }
 
-function validatePayload(data: CannedResponseCreateInput | CannedResponseUpdateInput) {
+function validatePayload(
+  data: CannedResponseCreateInput | CannedResponseUpdateInput,
+) {
   if ("intent_key" in data && data.intent_key !== undefined) {
     const key = data.intent_key.trim();
     if (!key) throw new Error("Intent key es obligatorio");
@@ -48,7 +50,11 @@ export const cannedResponsesService = {
     return cannedResponsesRepository.create(companyId, payload);
   },
 
-  update: (companyId: string, responseId: string, data: CannedResponseUpdateInput) => {
+  update: (
+    companyId: string,
+    responseId: string,
+    data: CannedResponseUpdateInput,
+  ) => {
     const payload: CannedResponseUpdateInput = { ...data };
     validatePayload(payload);
     return cannedResponsesRepository.update(companyId, responseId, payload);

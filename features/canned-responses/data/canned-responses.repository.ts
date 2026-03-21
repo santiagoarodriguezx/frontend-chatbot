@@ -22,11 +22,18 @@ export const cannedResponsesRepository = {
       body: JSON.stringify(data),
     });
   },
-  update(companyId: string, responseId: string, data: CannedResponseUpdateInput) {
-    return apiFetch<CannedResponse>(`/canned-responses/${companyId}/${responseId}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
+  update(
+    companyId: string,
+    responseId: string,
+    data: CannedResponseUpdateInput,
+  ) {
+    return apiFetch<CannedResponse>(
+      `/canned-responses/${companyId}/${responseId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      },
+    );
   },
   delete(companyId: string, responseId: string) {
     return apiFetch<void>(`/canned-responses/${companyId}/${responseId}`, {
