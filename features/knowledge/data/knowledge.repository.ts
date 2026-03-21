@@ -14,8 +14,11 @@ export const knowledgeRepository = {
     });
   },
   delete(companyId: string, fileName: string) {
-    return apiFetch<void>(`/knowledge/${companyId}/${encodeURIComponent(fileName)}`, {
-      method: "DELETE",
-    });
+    return apiFetch<void>(
+      `/knowledge/${companyId}/${encodeURIComponent(fileName)}`,
+      {
+        method: "DELETE",
+      },
+    );
   },
 };

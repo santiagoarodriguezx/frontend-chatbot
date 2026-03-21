@@ -27,5 +27,10 @@ export const dashboardService = {
     companyId: string,
     appointmentId: string,
     status: string,
-  ) => dashboardRepository.updateAppointmentStatus(companyId, appointmentId, status),
+  ) =>
+    dashboardRepository.updateAppointmentStatus(
+      companyId,
+      appointmentId,
+      status,
+    ),
 };

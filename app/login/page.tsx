@@ -121,7 +121,8 @@ export default function LoginPage() {
     setSuccess(null);
 
     const redirectTo = `${window.location.origin}/login`;
-    const { error: oauthError } = await authService.signInWithGoogle(redirectTo);
+    const { error: oauthError } =
+      await authService.signInWithGoogle(redirectTo);
 
     if (oauthError) {
       setError(oauthError.message);

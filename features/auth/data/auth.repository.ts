@@ -17,7 +17,10 @@ export const authRepository = {
   getSession() {
     return supabase.auth.getSession();
   },
-  signInWithPassword(email: string, password: string): Promise<AuthTokenResponsePassword> {
+  signInWithPassword(
+    email: string,
+    password: string,
+  ): Promise<AuthTokenResponsePassword> {
     return supabase.auth.signInWithPassword({ email, password });
   },
   signUp(email: string, password: string): Promise<AuthTokenResponsePassword> {
