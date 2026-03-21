@@ -1,4 +1,7 @@
-import { toolsRepository, type CompanyToolUpsertInput } from "../data/tools.repository";
+import {
+  toolsRepository,
+  type CompanyToolUpsertInput,
+} from "../data/tools.repository";
 
 export const toolsService = {
   listAvailable: (category?: string) => toolsRepository.listAvailable(category),

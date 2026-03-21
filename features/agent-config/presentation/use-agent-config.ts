@@ -8,9 +8,11 @@ import {
 
 export function useAgentConfig(companyId: string) {
   const key = `agent-config-${companyId}`;
-  const { data: config, isLoading, error } = useSWR<AgentConfig>(key, () =>
-    agentConfigService.getConfig(companyId),
-  );
+  const {
+    data: config,
+    isLoading,
+    error,
+  } = useSWR<AgentConfig>(key, () => agentConfigService.getConfig(companyId));
 
   const [form, setForm] = useState<AgentConfigEditablePayload | null>(null);
   const [saving, setSaving] = useState(false);

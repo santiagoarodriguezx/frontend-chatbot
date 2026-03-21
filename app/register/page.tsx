@@ -263,9 +263,13 @@ export default function RegisterPage() {
               <input
                 value={instanceName}
                 onChange={(e) => setInstanceName(e.target.value)}
+                minLength={3}
                 className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-950"
                 placeholder="mi-instancia"
               />
+              <p className="text-xs text-neutral-500 mt-1">
+                Mínimo 3 caracteres (o déjalo vacío)
+              </p>
             </div>
           </div>
 

@@ -56,7 +56,11 @@ export const dashboardRepository = {
       },
     );
   },
-  updateAppointmentStatus(companyId: string, appointmentId: string, status: string) {
+  updateAppointmentStatus(
+    companyId: string,
+    appointmentId: string,
+    status: string,
+  ) {
     return apiFetch<void>(
       `/dashboard/${companyId}/appointments/${appointmentId}/status?status=${status}`,
       {

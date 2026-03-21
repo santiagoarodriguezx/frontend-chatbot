@@ -18,7 +18,9 @@ export type AgentConfigEditablePayload = Partial<
   >
 >;
 
-function removeUndefinedFields<T extends Record<string, unknown>>(payload: T): T {
+function removeUndefinedFields<T extends Record<string, unknown>>(
+  payload: T,
+): T {
   const cleanPayload = Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value !== undefined),
   );
