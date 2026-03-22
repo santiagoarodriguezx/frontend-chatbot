@@ -1,5 +1,11 @@
 import { apiFetch } from "@/lib/utils";
-import type { Company, CompanyBootstrap } from "@/lib/types";
+import type {
+  Company,
+  CompanyBootstrap,
+  EvolutionInstanceCreateOut,
+  EvolutionInstanceQrOut,
+  EvolutionInstanceStatusOut,
+} from "@/lib/types";
 
 export const companiesRepository = {
   list() {
@@ -27,9 +33,14 @@ export const companiesRepository = {
     });
   },
   getQRCode(id: string) {
-    return apiFetch<{ qrcode: string }>(`/companies/${id}/instance/qrcode`);
+    return apiFetch<EvolutionInstanceQrOut>(`/companies/${id}/instance/qrcode`);
   },
   getStatus(id: string) {
-    return apiFetch<{ state: string }>(`/companies/${id}/instance/status`);
+    return apiFetch<EvolutionInstanceStatusOut>(`/companies/${id}/instance/status`);
+  },
+  createInstance(id: string) {
+    return apiFetch<EvolutionInstanceCreateOut>(`/companies/${id}/instance/create`, {
+      method: "POST",
+    });
   },
 };

@@ -159,3 +159,21 @@ export interface CannedResponse {
   created_at: string;
   updated_at: string;
 }
+
+export interface EvolutionInstanceCreateOut {
+  instance_name: string;
+  webhook_url: string;
+  evolution: Record<string, unknown>;
+}
+
+export interface EvolutionInstanceStatusOut {
+  instance_name: string;
+  state: string;
+  raw: Record<string, unknown>;
+}
+
+export interface EvolutionInstanceQrOut {
+  instance_name: string;
+  qrcode: string | null;
+  raw: Record<string, unknown>;
+}
