@@ -36,11 +36,16 @@ export const companiesRepository = {
     return apiFetch<EvolutionInstanceQrOut>(`/companies/${id}/instance/qrcode`);
   },
   getStatus(id: string) {
-    return apiFetch<EvolutionInstanceStatusOut>(`/companies/${id}/instance/status`);
+    return apiFetch<EvolutionInstanceStatusOut>(
+      `/companies/${id}/instance/status`,
+    );
   },
   createInstance(id: string) {
-    return apiFetch<EvolutionInstanceCreateOut>(`/companies/${id}/instance/create`, {
-      method: "POST",
-    });
+    return apiFetch<EvolutionInstanceCreateOut>(
+      `/companies/${id}/instance/create`,
+      {
+        method: "POST",
+      },
+    );
   },
 };
