@@ -37,4 +37,5 @@ export const companiesService = {
     companiesRepository.update(id, normalizeCompanyPayload(data)),
   getQRCode: (id: string) => companiesRepository.getQRCode(id),
   getStatus: (id: string) => companiesRepository.getStatus(id),
+  createInstance: (id: string) => companiesRepository.createInstance(id),
 };

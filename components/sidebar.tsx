@@ -6,6 +6,7 @@ import {
   Bot,
   Wrench,
   Package,
+  QrCode,
   BookOpen,
   MessageSquare,
   Calendar,
@@ -19,6 +20,7 @@ import { supabase } from "@/lib/supabase-browser";
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/agent", label: "Agent", icon: Bot },
+  { href: "/dashboard/instance", label: "WhatsApp Instance", icon: QrCode },
   { href: "/dashboard/tools", label: "Tools", icon: Wrench },
   { href: "/dashboard/catalog", label: "Catalog", icon: Package },
   { href: "/dashboard/knowledge", label: "Knowledge Base", icon: BookOpen },

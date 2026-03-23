@@ -146,3 +146,34 @@ export interface KnowledgeDoc {
   chunk_index: number;
   created_at: string;
 }
+
+export interface CannedResponse {
+  id: string;
+  company_id: string;
+  intent_key: string;
+  intent_description: string;
+  response_template: string;
+  keywords: string[];
+  is_enabled: boolean;
+  priority: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EvolutionInstanceCreateOut {
+  instance_name: string;
+  webhook_url: string;
+  evolution: Record<string, unknown>;
+}
+
+export interface EvolutionInstanceStatusOut {
+  instance_name: string;
+  state: string;
+  raw: Record<string, unknown>;
+}
+
+export interface EvolutionInstanceQrOut {
+  instance_name: string;
+  qrcode: string | null;
+  raw: Record<string, unknown>;
+}
