@@ -26,6 +26,10 @@ export async function apiFetch<T>(
     headers.set("Authorization", `Bearer ${session.access_token}`);
   }
 
+  if (API_URL.includes("ngrok")) {
+    headers.set("ngrok-skip-browser-warning", "true");
+  }
+
   let res: Response;
   try {
     res = await fetch(`${API_URL}${path}`, {
@@ -47,7 +51,15 @@ export async function apiFetch<T>(
 
   const contentType = res.headers.get("content-type") ?? "";
   if (!contentType.includes("application/json")) {
-    return undefined as T;
+    const body = await res.text();
+    const preview = body.slice(0, 200).replace(/\s+/g, " ").trim();
+    throw new Error(
+      `Respuesta inesperada del backend: se esperaba JSON y llegó '${contentType || "sin content-type"}'. ${
+        API_URL.includes("ngrok")
+          ? "Si usas ngrok, verifica que la URL sea la túnel activo y no una página de advertencia."
+          : ""
+      }${preview ? ` Body: ${preview}` : ""}`,
+    );
   }
 
   return res.json() as Promise<T>;
