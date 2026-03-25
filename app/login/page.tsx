@@ -1,12 +1,13 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { companiesApi } from "@/lib/api";
 import { authService } from "@/features/auth/application/auth.service";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,11 +31,18 @@ export default function LoginPage() {
 
   useEffect(() => {
     let mounted = true;
+    const shouldGoToOtp = searchParams.get("otp") === "1";
+
     async function checkSession() {
       const {
         data: { session },
       } = await authService.getSession();
       if (mounted && session) {
+        if (shouldGoToOtp) {
+          router.replace("/login/otp");
+          return;
+        }
+
         try {
           await redirectAfterAuth();
         } catch (bootstrapError) {
@@ -51,7 +59,7 @@ export default function LoginPage() {
     return () => {
       mounted = false;
     };
-  }, [redirectAfterAuth]);
+  }, [redirectAfterAuth, router, searchParams]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -60,27 +68,9 @@ export default function LoginPage() {
     setSuccess(null);
 
     if (mode === "login") {
-      const { error: signInError } = await authService.signInWithPassword(
-        email,
-        password,
-      );
-
+      const safeEmail = encodeURIComponent(email.trim());
+      router.push(`/login/otp?email=${safeEmail}`);
       setLoading(false);
-
-      if (signInError) {
-        setError(signInError.message);
-        return;
-      }
-
-      try {
-        await redirectAfterAuth();
-      } catch (bootstrapError) {
-        setError(
-          bootstrapError instanceof Error
-            ? bootstrapError.message
-            : "Ingresaste, pero no se pudo cargar tu contexto.",
-        );
-      }
       return;
     }
 
@@ -120,7 +110,7 @@ export default function LoginPage() {
     setError(null);
     setSuccess(null);
 
-    const redirectTo = `${window.location.origin}/login`;
+    const redirectTo = `${window.location.origin}/login?otp=1`;
     const { error: oauthError } =
       await authService.signInWithGoogle(redirectTo);
 
@@ -232,6 +222,7 @@ export default function LoginPage() {
               ? "No tengo cuenta, registrarme"
               : "Ya tengo cuenta, iniciar sesión"}
           </button>
+
         </form>
       </div>
     </main>
