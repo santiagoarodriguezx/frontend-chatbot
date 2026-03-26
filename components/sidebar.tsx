@@ -45,6 +45,11 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const items = [...navItems];
   if (isAdmin) {
     items.push({
+      href: "/dashboard/admin",
+      label: "Global Admin",
+      icon: ShieldCheck,
+    });
+    items.push({
       href: "/dashboard/admin/companies",
       label: "Admin Companies",
       icon: Building2,
