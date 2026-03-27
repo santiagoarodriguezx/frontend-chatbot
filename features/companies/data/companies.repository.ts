@@ -3,6 +3,7 @@ import type {
   Company,
   CompanyBootstrap,
   EvolutionInstanceCreateOut,
+  EvolutionInstanceDeleteOut,
   EvolutionInstanceQrOut,
   EvolutionInstanceStatusOut,
 } from "@/lib/types";
@@ -47,5 +48,10 @@ export const companiesRepository = {
         method: "POST",
       },
     );
+  },
+  deleteInstance(id: string) {
+    return apiFetch<EvolutionInstanceDeleteOut>(`/companies/${id}/instance`, {
+      method: "DELETE",
+    });
   },
 };
