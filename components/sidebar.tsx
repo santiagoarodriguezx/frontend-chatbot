@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   LogOut,
   Building2,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase-browser";
@@ -44,6 +45,11 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
 
   const items = [...navItems];
   if (isAdmin) {
+    items.push({
+      href: "/dashboard/admin",
+      label: "Global Admin",
+      icon: ShieldCheck,
+    });
     items.push({
       href: "/dashboard/admin/companies",
       label: "Admin Companies",

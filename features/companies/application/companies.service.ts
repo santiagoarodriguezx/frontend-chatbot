@@ -38,4 +38,5 @@ export const companiesService = {
   getQRCode: (id: string) => companiesRepository.getQRCode(id),
   getStatus: (id: string) => companiesRepository.getStatus(id),
   createInstance: (id: string) => companiesRepository.createInstance(id),
+  deleteInstance: (id: string) => companiesRepository.deleteInstance(id),
 };
