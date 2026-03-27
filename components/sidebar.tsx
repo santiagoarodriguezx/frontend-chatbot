@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   LogOut,
   Building2,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase-browser";
