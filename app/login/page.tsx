@@ -5,10 +5,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { companiesApi } from "@/lib/api";
 import { authService } from "@/features/auth/application/auth.service";
 
+type LoginMode = "login" | "signup";
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+
+  const [mode, setMode] = useState<LoginMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,48 +25,56 @@ export default function LoginPage() {
 
   const redirectAfterAuth = useCallback(async () => {
     const bootstrap = await companiesApi.bootstrap();
+
     if (bootstrap.company) {
       router.replace("/dashboard");
       return;
     }
+
     if (bootstrap.is_admin) {
       router.replace("/dashboard/admin/companies");
       return;
     }
+
     router.replace("/onboarding");
   }, [router]);
 
   useEffect(() => {
+    const emailFromQuery = searchParams.get("email") ?? "";
+    if (emailFromQuery) {
+      setEmail(emailFromQuery);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     let mounted = true;
-    const shouldGoToOtp = searchParams.get("otp") === "1";
 
     async function checkSession() {
       const {
         data: { session },
       } = await authService.getSession();
-      if (mounted && session) {
-        if (shouldGoToOtp) {
-          router.replace("/login/otp");
-          return;
-        }
 
-        try {
-          await redirectAfterAuth();
-        } catch (bootstrapError) {
-          if (!mounted) return;
-          setError(
-            bootstrapError instanceof Error
-              ? bootstrapError.message
-              : "No se pudo validar la sesión con el backend.",
-          );
-        }
+      if (!mounted || !session) return;
+
+      try {
+        await redirectAfterAuth();
+      } catch (bootstrapError) {
+        if (!mounted) return;
+
+        setError(
+          bootstrapError instanceof Error
+            ? bootstrapError.message
+            : "No se pudo validar la sesion con el backend.",
+        );
       }
     }
+
     void checkSession();
+
     return () => {
       mounted = false;
     };
-  }, [redirectAfterAuth, router, searchParams]);
+  }, [redirectAfterAuth]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -67,15 +82,47 @@ export default function LoginPage() {
     setError(null);
     setSuccess(null);
 
+    const normalizedEmail = normalizeEmail(email);
+
     if (mode === "login") {
-      const safeEmail = encodeURIComponent(email.trim());
-      router.push(`/login/otp?email=${safeEmail}`);
+      const { error: signInError } = await authService.signInWithPassword(
+        normalizedEmail,
+        password,
+      );
+
+      if (signInError) {
+        setError(signInError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { error: signOutError } = await authService.signOut();
+      if (signOutError) {
+        setError(signOutError.message);
+        setLoading(false);
+        return;
+      }
+
+      const appBaseUrl = window.location.origin;
+      const { error: otpError } = await authService.signInWithOtp(
+        normalizedEmail,
+        `${appBaseUrl}/login`,
+      );
+
       setLoading(false);
+
+      if (otpError) {
+        setError(otpError.message);
+        return;
+      }
+
+      const safeEmail = encodeURIComponent(normalizedEmail);
+      router.push(`/login/otp?email=${safeEmail}&force=1&sent=1`);
       return;
     }
 
     const { data, error: signUpError } = await authService.signUp(
-      email,
+      normalizedEmail,
       password,
     );
 
@@ -100,7 +147,7 @@ export default function LoginPage() {
     }
 
     setSuccess(
-      "Cuenta creada. Revisa tu correo para confirmar y luego inicia sesión.",
+      "Cuenta creada. Revisa tu correo para confirmar y luego inicia sesion.",
     );
     setMode("login");
   }
@@ -110,7 +157,7 @@ export default function LoginPage() {
     setError(null);
     setSuccess(null);
 
-    const redirectTo = `${window.location.origin}/login?otp=1`;
+    const redirectTo = `${window.location.origin}/login`;
     const { error: oauthError } =
       await authService.signInWithGoogle(redirectTo);
 
@@ -124,12 +171,13 @@ export default function LoginPage() {
     <main className="min-h-screen bg-neutral-50 flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white border border-neutral-200 rounded-2xl shadow-sm p-8">
         <h1 className="text-2xl font-bold text-neutral-950">
-          {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
+          {mode === "login" ? "Iniciar sesion" : "Crear cuenta"}
         </h1>
+
         <p className="text-sm text-neutral-500 mt-1 mb-6">
           {mode === "login"
-            ? "Accede con tu usuario de Supabase Auth."
-            : "Regístrate con email y contraseña en Supabase Auth."}
+            ? "Ingresa con email y contrasena. Luego validaras un codigo OTP."
+            : "Registrate con email y contrasena en Supabase Auth."}
         </p>
 
         <button
@@ -171,7 +219,7 @@ export default function LoginPage() {
 
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">
-              Contraseña
+              Contrasena
             </label>
             <input
               type="password"
@@ -202,10 +250,10 @@ export default function LoginPage() {
           >
             {loading
               ? mode === "login"
-                ? "Ingresando..."
+                ? "Validando..."
                 : "Creando cuenta..."
               : mode === "login"
-                ? "Ingresar"
+                ? "Continuar"
                 : "Crear cuenta"}
           </button>
 
@@ -219,10 +267,9 @@ export default function LoginPage() {
             className="w-full rounded-xl border border-neutral-300 text-neutral-700 py-2.5 text-sm font-medium hover:bg-neutral-50 transition"
           >
             {mode === "login"
-              ? "No tengo cuenta, registrarme"
-              : "Ya tengo cuenta, iniciar sesión"}
+              ? "No tengo cuenta, crear cuenta"
+              : "Ya tengo cuenta, iniciar sesion"}
           </button>
-
         </form>
       </div>
     </main>

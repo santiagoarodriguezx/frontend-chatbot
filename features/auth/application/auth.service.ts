@@ -2,6 +2,11 @@ import { authRepository } from "../data/auth.repository";
 
 export const authService = {
   getSession: () => authRepository.getSession(),
+  signOut: () => authRepository.signOut(),
+  signInWithOtp: (email: string, emailRedirectTo?: string) =>
+    authRepository.signInWithOtp(email, emailRedirectTo),
+  verifyEmailOtp: (email: string, token: string) =>
+    authRepository.verifyEmailOtp(email, token),
   signInWithPassword: (email: string, password: string) =>
     authRepository.signInWithPassword(email, password),
   signUp: (email: string, password: string) =>
