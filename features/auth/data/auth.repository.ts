@@ -17,6 +17,25 @@ export const authRepository = {
   getSession() {
     return supabase.auth.getSession();
   },
+  signOut() {
+    return supabase.auth.signOut();
+  },
+  signInWithOtp(email: string, emailRedirectTo?: string) {
+    return supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: false,
+        ...(emailRedirectTo ? { emailRedirectTo } : {}),
+      },
+    });
+  },
+  verifyEmailOtp(email: string, token: string) {
+    return supabase.auth.verifyOtp({
+      email,
+      token,
+      type: "email",
+    });
+  },
   signInWithPassword(
     email: string,
     password: string,
