@@ -2,6 +2,8 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { companiesApi } from "@/lib/api";
 import { authService } from "@/features/auth/application/auth.service";
 
@@ -16,6 +18,8 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
 
   const [mode, setMode] = useState<LoginMode>("login");
+  const redirectingRef = useRef(false);
+  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,6 +53,23 @@ export default function LoginPage() {
   useEffect(() => {
     let mounted = true;
 
+    async function safeRedirectAfterAuth() {
+      if (redirectingRef.current) return;
+      redirectingRef.current = true;
+      try {
+        await redirectAfterAuth();
+      } catch (bootstrapError) {
+        if (!mounted) return;
+        setError(
+          bootstrapError instanceof Error
+            ? bootstrapError.message
+            : "No se pudo validar la sesión con el backend.",
+        );
+      } finally {
+        redirectingRef.current = false;
+      }
+    }
+
     async function checkSession() {
       const {
         data: { session },
@@ -69,10 +90,29 @@ export default function LoginPage() {
       }
     }
 
+      if (mounted && session) {
+        await safeRedirectAfterAuth();
+      }
+    }
+
+    const {
+      data: { subscription },
+    } = authService.onAuthStateChange((event, session) => {
+      if (!mounted || !session) return;
+      if (
+        event === "SIGNED_IN" ||
+        event === "INITIAL_SESSION" ||
+        event === "TOKEN_REFRESHED"
+      ) {
+        void safeRedirectAfterAuth();
+      }
+    });
+
     void checkSession();
 
     return () => {
       mounted = false;
+      subscription.unsubscribe();
     };
   }, [redirectAfterAuth]);
 
