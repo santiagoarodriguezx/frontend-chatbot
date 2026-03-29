@@ -282,7 +282,7 @@ export default function InstancePage() {
               </div>
             ) : (
               <div className="text-xs text-neutral-500 text-center">
-                Sin QR cargado. Si la instancia ya existe, usa "Obtener QR".
+                Sin QR cargado. Si la instancia ya existe, usa &quot;Obtener QR&quot;.
               </div>
             )}
           </div>
