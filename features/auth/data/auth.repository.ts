@@ -32,6 +32,22 @@ export const authRepository = {
       options: { redirectTo },
     });
   },
+  requestPasswordReset(email: string, redirectTo: string) {
+    return supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  },
+  verifyRecoveryCode(email: string, token: string) {
+    return supabase.auth.verifyOtp({
+      email,
+      token,
+      type: "recovery",
+    });
+  },
+  updatePassword(password: string) {
+    return supabase.auth.updateUser({ password });
+  },
+  signOut() {
+    return supabase.auth.signOut();
+  },
   onAuthStateChange(callback: AuthStateChangeCallback): {
     data: { subscription: Subscription };
   } {

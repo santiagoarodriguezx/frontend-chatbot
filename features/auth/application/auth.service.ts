@@ -8,6 +8,12 @@ export const authService = {
     authRepository.signUp(email, password),
   signInWithGoogle: (redirectTo: string) =>
     authRepository.signInWithGoogle(redirectTo),
+  requestPasswordReset: (email: string, redirectTo: string) =>
+    authRepository.requestPasswordReset(email, redirectTo),
+  verifyRecoveryCode: (email: string, token: string) =>
+    authRepository.verifyRecoveryCode(email, token),
+  updatePassword: (password: string) => authRepository.updatePassword(password),
+  signOut: () => authRepository.signOut(),
   onAuthStateChange: (
     callback: Parameters<typeof authRepository.onAuthStateChange>[0],
   ) => authRepository.onAuthStateChange(callback),
