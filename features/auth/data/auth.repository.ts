@@ -64,9 +64,6 @@ export const authRepository = {
   updatePassword(password: string) {
     return supabase.auth.updateUser({ password });
   },
-  signOut() {
-    return supabase.auth.signOut();
-  },
   onAuthStateChange(callback: AuthStateChangeCallback): {
     data: { subscription: Subscription };
   } {
