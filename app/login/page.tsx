@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { companiesApi } from "@/lib/api";
 import { authService } from "@/features/auth/application/auth.service";
 
@@ -194,12 +195,12 @@ export default function LoginPage() {
           </div>
 
           <div className="flex justify-end">
-            <a
+            <Link
               href="/reset-password"
               className="text-xs text-neutral-500 hover:text-neutral-900"
             >
               ¿Olvidaste tu contraseña?
-            </a>
+            </Link>
           </div>
 
           {error && (
