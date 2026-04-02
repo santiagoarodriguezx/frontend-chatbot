@@ -1,7 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import Link from "next/link";
+import { FormEvent, KeyboardEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { authService } from "@/features/auth/application/auth.service";
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -17,18 +23,30 @@ export default function ResetPasswordPage() {
     return otp.join("");
   }
 
-  function handleRequestCode(e: React.FormEvent) {
+  async function handleRequestCode(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setMessage(null);
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      setStep("verify");
-      setMessage(`Te enviamos un codigo de 6 digitos a ${email}.`);
-      inputRefs.current[0]?.focus();
-    }, 1200);
+    const normalizedEmail = normalizeEmail(email);
+    const redirectTo = `${window.location.origin}/update-password`;
+    const { error: resetError } = await authService.requestPasswordReset(
+      normalizedEmail,
+      redirectTo,
+    );
+
+    setLoading(false);
+
+    if (resetError) {
+      setError(resetError.message);
+      return;
+    }
+
+    setEmail(normalizedEmail);
+    setStep("verify");
+    setMessage(`Te enviamos un codigo de 6 digitos a ${normalizedEmail}.`);
+    inputRefs.current[0]?.focus();
   }
 
   function handleOtpChange(index: number, value: string) {
@@ -43,16 +61,13 @@ export default function ResetPasswordPage() {
     }
   }
 
-  function handleOtpKeyDown(
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ) {
+  function handleOtpKeyDown(index: number, e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   }
 
-  function handleVerifyCode(e: React.FormEvent) {
+  async function handleVerifyCode(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setMessage(null);
@@ -64,16 +79,54 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/update-password");
-    }, 700);
+    const { error: verifyError } = await authService.verifyRecoveryCode(
+      email,
+      otpValue(),
+    );
+
+    setLoading(false);
+
+    if (verifyError) {
+      setError(verifyError.message);
+      return;
+    }
+
+    router.push(`/update-password?email=${encodeURIComponent(email)}`);
+  }
+
+  async function handleResendCode() {
+    setError(null);
+    setMessage(null);
+
+    if (!email) {
+      setError("Ingresa un email valido para reenviar el codigo.");
+      return;
+    }
+
+    setLoading(true);
+    const redirectTo = `${window.location.origin}/update-password`;
+    const { error: resendError } = await authService.requestPasswordReset(
+      email,
+      redirectTo,
+    );
+    setLoading(false);
+
+    if (resendError) {
+      setError(resendError.message);
+      return;
+    }
+
+    setMessage(`Te reenviamos un nuevo codigo a ${email}.`);
+    setOtp(["", "", "", "", "", ""]);
+    inputRefs.current[0]?.focus();
   }
 
   return (
     <main className="min-h-screen bg-neutral-50 flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white border border-neutral-200 rounded-2xl shadow-sm p-8">
-        <h1 className="text-2xl font-bold text-neutral-950">Recuperar contraseña</h1>
+        <h1 className="text-2xl font-bold text-neutral-950">
+          Recuperar contraseña
+        </h1>
         <p className="text-sm text-neutral-500 mt-1 mb-6">
           {step === "request"
             ? "Ingresa tu correo y te enviaremos un codigo OTP."
@@ -135,6 +188,15 @@ export default function ResetPasswordPage() {
 
             <button
               type="button"
+              onClick={handleResendCode}
+              disabled={loading}
+              className="w-full rounded-xl border border-neutral-300 text-neutral-700 py-2.5 text-sm font-medium hover:bg-neutral-50 transition disabled:opacity-60"
+            >
+              Reenviar codigo
+            </button>
+
+            <button
+              type="button"
               onClick={() => {
                 setStep("request");
                 setOtp(["", "", "", "", "", ""]);
@@ -160,12 +222,12 @@ export default function ResetPasswordPage() {
           </p>
         )}
 
-        <a
+        <Link
           href="/login"
           className="block mt-5 text-center text-xs text-neutral-500 hover:text-neutral-900"
         >
           Volver a inicio de sesion
-        </a>
+        </Link>
       </div>
     </main>
   );
