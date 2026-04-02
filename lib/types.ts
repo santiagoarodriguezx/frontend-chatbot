@@ -177,3 +177,9 @@ export interface EvolutionInstanceQrOut {
   qrcode: string | null;
   raw: Record<string, unknown>;
 }
+
+export interface EvolutionInstanceDeleteOut {
+  instance_name: string;
+  deleted: boolean;
+  evolution: Record<string, unknown>;
+}

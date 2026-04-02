@@ -16,6 +16,7 @@ export const companiesApi = {
   getQRCode: companiesService.getQRCode,
   getStatus: companiesService.getStatus,
   createInstance: companiesService.createInstance,
+  deleteInstance: companiesService.deleteInstance,
 };
 
 export const agentApi = {
