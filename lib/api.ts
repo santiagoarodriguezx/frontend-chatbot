@@ -43,6 +43,8 @@ export const cannedResponsesApi = {
 
 export const dashboardApi = {
   metrics: dashboardService.metrics,
+  metricsGeneral: dashboardService.metricsGeneral,
+  metricsDaily: dashboardService.metricsDaily,
   conversations: dashboardService.conversations,
   messages: dashboardService.messages,
   orders: dashboardService.orders,

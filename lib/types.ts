@@ -138,6 +138,29 @@ export interface DashboardMetrics {
   total_revenue: number;
 }
 
+export interface CompanyMetricsGeneral {
+  company_id: string;
+  total_interactions: number;
+  avg_response_ms: number;
+  p95_response_ms: number;
+  with_tools: number;
+  fallbacks: number;
+  errors: number;
+  first_seen_at: string | null;
+  last_seen_at: string | null;
+}
+
+export interface CompanyMetricsDaily {
+  company_id: string;
+  metric_date: string;
+  total_interactions: number;
+  avg_response_ms: number;
+  p95_response_ms: number;
+  with_tools: number;
+  fallbacks: number;
+  errors: number;
+}
+
 export interface KnowledgeDoc {
   id: string;
   company_id: string;

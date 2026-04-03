@@ -3,6 +3,10 @@ import { dashboardRepository } from "../data/dashboard.repository";
 
 export const dashboardService = {
   metrics: (companyId: string) => dashboardRepository.metrics(companyId),
+  metricsGeneral: (companyId: string) =>
+    dashboardRepository.metricsGeneral(companyId),
+  metricsDaily: (companyId: string, days?: number) =>
+    dashboardRepository.metricsDaily(companyId, days),
   conversations: (companyId: string) =>
     dashboardRepository.conversations(companyId),
   messages: (companyId: string, conversationId: string) =>

@@ -1,6 +1,8 @@
 import { apiFetch } from "@/lib/utils";
 import type {
   Appointment,
+  CompanyMetricsDaily,
+  CompanyMetricsGeneral,
   Conversation,
   DashboardMetrics,
   Message,
@@ -11,6 +13,16 @@ import type {
 export const dashboardRepository = {
   metrics(companyId: string) {
     return apiFetch<DashboardMetrics>(`/dashboard/${companyId}/metrics`);
+  },
+  metricsGeneral(companyId: string) {
+    return apiFetch<CompanyMetricsGeneral>(
+      `/companies/${companyId}/metrics/general`,
+    );
+  },
+  metricsDaily(companyId: string, days = 7) {
+    return apiFetch<CompanyMetricsDaily[]>(
+      `/companies/${companyId}/metrics/daily?days=${days}`,
+    );
   },
   conversations(companyId: string) {
     return apiFetch<Conversation[]>(`/dashboard/${companyId}/conversations`);
