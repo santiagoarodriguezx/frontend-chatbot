@@ -17,9 +17,12 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase-browser";
+import { BarChart3 } from "lucide-react";
+
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/metrics", label: "Metrics", icon: BarChart3 },
   { href: "/dashboard/agent", label: "Agent", icon: Bot },
   { href: "/dashboard/instance", label: "WhatsApp Instance", icon: QrCode },
   { href: "/dashboard/tools", label: "Tools", icon: Wrench },
