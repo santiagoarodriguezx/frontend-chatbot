@@ -49,7 +49,7 @@ export default function SetupWhatsappPage() {
 	const isConnected = status?.toLowerCase() === "connected";
 	const qrSrc = useMemo(() => toQrSrc(qrValue), [qrValue]);
 
-	async function refreshStatus(companyId: string, silent = false) {
+	async function refreshStatus(companyId: string, silent = false): Promise<string | null> {
 		if (!silent) {
 			setError(null);
 			setSuccess(null);
@@ -62,27 +62,45 @@ export default function SetupWhatsappPage() {
 			if (!silent) {
 				setSuccess("Estado actualizado.");
 			}
+			return typeof data.state === "string" ? data.state : String(data.state);
 		} catch {
 			setStatus(null);
 			if (!silent) {
 				setError("Aún no hay una instancia activa. Crea una y escanea el QR.");
 			}
+			return null;
 		}
 	}
 
-	async function loadQr(companyId: string) {
-		setBusy(true);
-		setError(null);
-		setSuccess(null);
+	async function loadQr(
+		companyId: string,
+		options?: { silent?: boolean; background?: boolean },
+	) {
+		const silent = Boolean(options?.silent);
+		const background = Boolean(options?.background);
+
+		if (!background) {
+			setBusy(true);
+		}
+		if (!silent) {
+			setError(null);
+			setSuccess(null);
+		}
 		try {
 			const data = await companiesApi.getQRCode(companyId);
 			setInstanceName(data.instance_name);
 			setQrValue(data.qrcode);
-			setSuccess("QR cargado correctamente.");
+			if (!silent) {
+				setSuccess("QR cargado correctamente.");
+			}
 		} catch (value) {
-			setError(value instanceof Error ? value.message : "No se pudo obtener el QR.");
+			if (!silent) {
+				setError(value instanceof Error ? value.message : "No se pudo obtener el QR.");
+			}
 		} finally {
-			setBusy(false);
+			if (!background) {
+				setBusy(false);
+			}
 		}
 	}
 
@@ -154,7 +172,10 @@ export default function SetupWhatsappPage() {
 
 				setCompany(data.company);
 				setInstanceName(data.company.whatsapp_instance_name);
-				await refreshStatus(data.company.id, true);
+				const currentState = await refreshStatus(data.company.id, true);
+				if ((currentState || "").trim().toLowerCase() !== "connected") {
+					await loadQr(data.company.id, { silent: true, background: true });
+				}
 			} catch {
 				router.replace("/login");
 				return;
@@ -176,13 +197,18 @@ export default function SetupWhatsappPage() {
 		if (!company || isConnected) return;
 
 		const timer = window.setInterval(() => {
-			void refreshStatus(company.id, true);
+			void (async () => {
+				const currentState = await refreshStatus(company.id, true);
+				if ((currentState || "").trim().toLowerCase() !== "connected" && !qrValue) {
+					await loadQr(company.id, { silent: true, background: true });
+				}
+			})();
 		}, 8000);
 
 		return () => {
 			window.clearInterval(timer);
 		};
-	}, [company, isConnected]);
+	}, [company, isConnected, qrValue]);
 
 	if (loading) {
 		return (
