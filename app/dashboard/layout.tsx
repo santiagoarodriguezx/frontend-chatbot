@@ -17,6 +17,7 @@ export default function DashboardLayout({
   const [isReady, setIsReady] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isWhatsappConnected, setIsWhatsappConnected] = useState<boolean | null>(null);
 
   const isAdminRoute = pathname.startsWith("/dashboard/admin");
 
@@ -36,8 +37,23 @@ export default function DashboardLayout({
       try {
         const data = await companiesApi.bootstrap();
         if (!isMounted) return;
+
+        let connected: boolean | null = null;
+        if (!data.is_admin && data.company?.id) {
+          try {
+            const status = await companiesApi.getStatus(data.company.id);
+            connected =
+              String(status.state || "")
+                .trim()
+                .toLowerCase() === "connected";
+          } catch {
+            connected = false;
+          }
+        }
+
         setIsAdmin(data.is_admin);
         setCompanyId(data.company?.id ?? null);
+        setIsWhatsappConnected(connected);
         setIsReady(true);
       } catch {
         router.replace("/login");
@@ -74,8 +90,13 @@ export default function DashboardLayout({
       } else {
         router.replace("/onboarding");
       }
+      return;
     }
-  }, [companyId, isAdmin, isAdminRoute, isReady, router]);
+
+    if (!isAdminRoute && !isAdmin && companyId && isWhatsappConnected === false) {
+      router.replace("/setup-whatsapp");
+    }
+  }, [companyId, isAdmin, isAdminRoute, isReady, isWhatsappConnected, router]);
 
   if (!isReady) {
     return (
