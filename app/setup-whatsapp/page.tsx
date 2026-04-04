@@ -8,6 +8,8 @@ import { authService } from "@/features/auth/application/auth.service";
 import { companiesApi } from "@/lib/api";
 import type { Company } from "@/lib/types";
 
+const CONNECTED_STATES = new Set(["connected", "open", "online"]);
+
 function toSafeInstanceName(base: string): string {
 	const normalized = base
 		.toLowerCase()
@@ -33,6 +35,10 @@ function toQrSrc(value: string | null): string | null {
 	return null;
 }
 
+function isConnectedState(value: string | null): boolean {
+	return CONNECTED_STATES.has((value || "").trim().toLowerCase());
+}
+
 export default function SetupWhatsappPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -46,7 +52,7 @@ export default function SetupWhatsappPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
 
-	const isConnected = status?.toLowerCase() === "connected";
+	const isConnected = isConnectedState(status);
 	const qrSrc = useMemo(() => toQrSrc(qrValue), [qrValue]);
 
 	async function refreshStatus(companyId: string, silent = false): Promise<string | null> {
@@ -173,7 +179,7 @@ export default function SetupWhatsappPage() {
 				setCompany(data.company);
 				setInstanceName(data.company.whatsapp_instance_name);
 				const currentState = await refreshStatus(data.company.id, true);
-				if ((currentState || "").trim().toLowerCase() !== "connected") {
+				if (!isConnectedState(currentState)) {
 					await loadQr(data.company.id, { silent: true, background: true });
 				}
 			} catch {
@@ -198,17 +204,34 @@ export default function SetupWhatsappPage() {
 
 		const timer = window.setInterval(() => {
 			void (async () => {
-				const currentState = await refreshStatus(company.id, true);
-				if ((currentState || "").trim().toLowerCase() !== "connected" && !qrValue) {
-					await loadQr(company.id, { silent: true, background: true });
+				if (document.visibilityState !== "visible") {
+					return;
 				}
+
+				await refreshStatus(company.id, true);
 			})();
-		}, 8000);
+		}, 12000);
 
 		return () => {
 			window.clearInterval(timer);
 		};
-	}, [company, isConnected, qrValue]);
+	}, [company, isConnected]);
+
+	useEffect(() => {
+		if (!company || isConnected || !instanceName) return;
+
+		const timer = window.setInterval(() => {
+			if (document.visibilityState !== "visible") {
+				return;
+			}
+
+			void loadQr(company.id, { silent: true, background: true });
+		}, 20000);
+
+		return () => {
+			window.clearInterval(timer);
+		};
+	}, [company, isConnected, instanceName]);
 
 	if (loading) {
 		return (

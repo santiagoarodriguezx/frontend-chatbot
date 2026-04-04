@@ -7,6 +7,8 @@ import { CompanyProvider } from "@/lib/company-context";
 import { companiesApi } from "@/lib/api";
 import { authService } from "@/features/auth/application/auth.service";
 
+const CONNECTED_STATES = new Set(["connected", "open", "online"]);
+
 export default function DashboardLayout({
   children,
 }: {
@@ -43,9 +45,7 @@ export default function DashboardLayout({
           try {
             const status = await companiesApi.getStatus(data.company.id);
             connected =
-              String(status.state || "")
-                .trim()
-                .toLowerCase() === "connected";
+              CONNECTED_STATES.has(String(status.state || "").trim().toLowerCase());
           } catch {
             connected = false;
           }

@@ -11,6 +11,9 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [pendingConfirmationEmail, setPendingConfirmationEmail] =
+    useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -18,21 +21,82 @@ export default function RegisterPage() {
     return value.trim().toLowerCase();
   }
 
+  function isAlreadyRegisteredError(value: string) {
+    const message = value.toLowerCase();
+    return (
+      message.includes("already registered") ||
+      message.includes("already exists") ||
+      message.includes("email already")
+    );
+  }
+
+  function isObfuscatedExistingUserResponse(user: {
+    identities?: Array<unknown> | null;
+  } | null) {
+    return Boolean(
+      user && Array.isArray(user.identities) && user.identities.length === 0,
+    );
+  }
+
+  async function onResendConfirmation() {
+    const normalizedEmail = normalizeEmail(pendingConfirmationEmail || email);
+    if (!normalizedEmail) return;
+
+    const emailRedirectTo = `${window.location.origin}/login`;
+
+    setResending(true);
+    setError(null);
+    try {
+      const { error: resendError } = await authService.resendSignupConfirmation(
+        normalizedEmail,
+        emailRedirectTo,
+      );
+
+      if (resendError) {
+        setError(resendError.message);
+        return;
+      }
+
+      setSuccess(
+        "Reenviamos el correo de confirmación. Revisa bandeja principal/spam.",
+      );
+    } finally {
+      setResending(false);
+    }
+  }
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(null);
+    setPendingConfirmationEmail(null);
 
     const normalizedEmail = normalizeEmail(email);
+    const emailRedirectTo = `${window.location.origin}/login`;
     const { data, error: signUpError } = await authService.signUp(
       normalizedEmail,
       password,
+      emailRedirectTo,
     );
 
     if (signUpError) {
+      if (isAlreadyRegisteredError(signUpError.message)) {
+        const safeEmail = encodeURIComponent(normalizedEmail);
+        setLoading(false);
+        router.replace(`/login?email=${safeEmail}`);
+        return;
+      }
+
       setError(signUpError.message);
       setLoading(false);
+      return;
+    }
+
+    if (isObfuscatedExistingUserResponse(data.user)) {
+      const safeEmail = encodeURIComponent(normalizedEmail);
+      setLoading(false);
+      router.replace(`/login?email=${safeEmail}`);
       return;
     }
 
@@ -63,7 +127,10 @@ export default function RegisterPage() {
     }
 
     setLoading(false);
-    setSuccess("Cuenta creada. Revisa tu correo para confirmar y luego inicia sesión.");
+    setPendingConfirmationEmail(normalizedEmail);
+    setSuccess(
+      "Cuenta creada. Te enviamos un correo de confirmación. Revisa bandeja principal/spam y confirma para iniciar sesión.",
+    );
   }
 
   return (
@@ -112,16 +179,30 @@ export default function RegisterPage() {
           </button>
         </form>
 
-          {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-              {error}
-            </p>
-          )}
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            {error}
+          </p>
+        )}
 
         {success && (
-          <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-            {success}
-          </p>
+          <div className="space-y-2">
+            <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+              {success}
+            </p>
+            {pendingConfirmationEmail && (
+              <button
+                type="button"
+                onClick={onResendConfirmation}
+                disabled={resending}
+                className="w-full rounded-xl border border-neutral-300 text-neutral-700 py-2 text-sm font-medium hover:bg-neutral-50 transition disabled:opacity-60"
+              >
+                {resending
+                  ? "Reenviando confirmación..."
+                  : "Reenviar correo de confirmación"}
+              </button>
+            )}
+          </div>
         )}
 
         <p className="text-xs text-neutral-500 mt-4 text-center">
