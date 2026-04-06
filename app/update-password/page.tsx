@@ -2,10 +2,27 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authService } from "@/features/auth/application/auth.service";
 
+export const dynamic = "force-dynamic";
+
 export default function UpdatePasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-neutral-50 flex items-center justify-center p-6 text-sm text-neutral-500">
+          Cargando recuperacion...
+        </main>
+      }
+    >
+      <UpdatePasswordPageContent />
+    </Suspense>
+  );
+}
+
+function UpdatePasswordPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");

@@ -79,7 +79,13 @@ export default function ConversationDetailPage({
   const { data: messages, isLoading } = useSWR<Message[]>(
     `messages-${params.id}`,
     () => dashboardApi.messages(companyId, params.id),
-    { refreshInterval: 5000 },
+    {
+      revalidateOnFocus: true,
+      revalidateIfStale: true,
+      dedupingInterval: 1000,
+      refreshWhenHidden: false,
+      refreshWhenOffline: false,
+    },
   );
 
   return (
@@ -93,7 +99,9 @@ export default function ConversationDetailPage({
         </Link>
         <div>
           <h1 className="text-xl font-bold text-neutral-950">Chat History</h1>
-          <p className="text-xs text-neutral-400">Live updates every 5s</p>
+          <p className="text-xs text-neutral-400">
+            Refreshes when you return to the tab
+          </p>
         </div>
       </div>
 

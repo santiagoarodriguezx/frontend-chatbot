@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Suspense } from "react";
 import { authService } from "@/features/auth/application/auth.service";
 import {
   isTrustedDevice,
@@ -22,6 +23,8 @@ import { companiesApi } from "@/lib/api";
 const OTP_LENGTH = 6;
 const OTP_COOLDOWN_SECONDS = 45;
 const emptyOtp = Array.from({ length: OTP_LENGTH }, () => "");
+
+export const dynamic = "force-dynamic";
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -39,6 +42,20 @@ function getAppBaseUrl() {
 }
 
 export default function LoginOtpPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-neutral-50 flex items-center justify-center p-6 text-sm text-neutral-500">
+          Cargando verificacion OTP...
+        </main>
+      }
+    >
+      <LoginOtpPageContent />
+    </Suspense>
+  );
+}
+
+function LoginOtpPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledEmail = searchParams.get("email") ?? "";
