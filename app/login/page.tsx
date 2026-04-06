@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { companiesApi } from "@/lib/api";
@@ -8,15 +9,32 @@ import { authService } from "@/features/auth/application/auth.service";
 
 type LoginMode = "login" | "signup";
 
+export const dynamic = "force-dynamic";
+
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
 export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-neutral-50 flex items-center justify-center p-6 text-sm text-neutral-500">
+          Cargando login...
+        </main>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
+  );
+}
+
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [mode, setMode] = useState<LoginMode>("login");
+  const bootstrapCalled = useRef(false);
   const redirectingRef = useRef(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,7 +70,8 @@ export default function LoginPage() {
     let mounted = true;
 
     async function safeRedirectAfterAuth() {
-      if (redirectingRef.current) return;
+      if (bootstrapCalled.current || redirectingRef.current) return;
+      bootstrapCalled.current = true;
       redirectingRef.current = true;
 
       try {
@@ -84,11 +103,7 @@ export default function LoginPage() {
     } = authService.onAuthStateChange((event, session) => {
       if (!mounted || !session) return;
 
-      if (
-        event === "SIGNED_IN" ||
-        event === "INITIAL_SESSION" ||
-        event === "TOKEN_REFRESHED"
-      ) {
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
         void safeRedirectAfterAuth();
       }
     });
