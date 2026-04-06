@@ -42,8 +42,35 @@ export const authRepository = {
   ): Promise<AuthTokenResponsePassword> {
     return supabase.auth.signInWithPassword({ email, password });
   },
-  signUp(email: string, password: string): Promise<AuthTokenResponsePassword> {
-    return supabase.auth.signUp({ email, password });
+  signUp(
+    email: string,
+    password: string,
+    emailRedirectTo?: string,
+  ): Promise<AuthTokenResponsePassword> {
+    return supabase.auth.signUp({
+      email,
+      password,
+      ...(emailRedirectTo
+        ? {
+            options: {
+              emailRedirectTo,
+            },
+          }
+        : {}),
+    });
+  },
+  resendSignupConfirmation(email: string, emailRedirectTo?: string) {
+    return supabase.auth.resend({
+      type: "signup",
+      email,
+      ...(emailRedirectTo
+        ? {
+            options: {
+              emailRedirectTo,
+            },
+          }
+        : {}),
+    });
   },
   signInWithGoogle(redirectTo: string): Promise<OAuthResponse> {
     return supabase.auth.signInWithOAuth({

@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { agentApi, companiesApi } from "@/lib/api";
+import { companiesApi } from "@/lib/api";
 import { authService } from "@/features/auth/application/auth.service";
 
 type PlanType = "free" | "pro" | "business";
@@ -21,10 +21,7 @@ export default function OnboardingPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
-  const [whatsappNumber, setWhatsappNumber] = useState("");
-  const [instanceName, setInstanceName] = useState("");
   const [plan, setPlan] = useState<PlanType>("free");
-  const [agentName, setAgentName] = useState("");
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,25 +58,6 @@ export default function OnboardingPage() {
           return;
         }
 
-        const draftRaw = localStorage.getItem("onboardingDraft");
-        if (draftRaw) {
-          const draft = JSON.parse(draftRaw) as {
-            name?: string;
-            slug?: string;
-            whatsapp_number?: string | null;
-            whatsapp_instance_name?: string | null;
-            plan?: PlanType;
-            agent_name?: string | null;
-          };
-          setName(draft.name ?? "");
-          setSlug(draft.slug ?? "");
-          setWhatsappNumber(draft.whatsapp_number ?? "");
-          setInstanceName(draft.whatsapp_instance_name ?? "");
-          setPlan(draft.plan ?? "free");
-          setAgentName(draft.agent_name ?? "");
-          setSlugTouched(Boolean(draft.slug));
-        }
-
         setInitialLoading(false);
       } catch {
         router.replace("/login");
@@ -101,17 +79,10 @@ export default function OnboardingPage() {
       const company = await companiesApi.create({
         name,
         slug,
-        whatsapp_number: whatsappNumber || null,
-        whatsapp_instance_name: instanceName || null,
         plan,
       });
 
-      if (agentName.trim()) {
-        await agentApi.update(company.id, { agent_name: agentName.trim() });
-      }
-
-      localStorage.removeItem("onboardingDraft");
-      router.replace("/dashboard");
+      router.replace(`/setup-whatsapp?companyId=${company.id}`);
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -170,36 +141,7 @@ export default function OnboardingPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                WhatsApp número
-              </label>
-              <input
-                value={whatsappNumber}
-                onChange={(e) => setWhatsappNumber(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-950"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                WhatsApp instancia
-              </label>
-              <input
-                value={instanceName}
-                onChange={(e) => setInstanceName(e.target.value)}
-                minLength={3}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-950"
-              />
-              <p className="text-xs text-neutral-500 mt-1">
-                Mínimo 3 caracteres (o déjalo vacío)
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+          <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">
                 Plan
               </label>
@@ -214,18 +156,6 @@ export default function OnboardingPage() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                Nombre del agente (opcional)
-              </label>
-              <input
-                value={agentName}
-                onChange={(e) => setAgentName(e.target.value)}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-950"
-              />
-            </div>
-          </div>
-
           {error && (
             <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               {error}
@@ -237,7 +167,9 @@ export default function OnboardingPage() {
             disabled={loading}
             className="w-full rounded-xl bg-neutral-950 text-white py-2.5 text-sm font-medium hover:bg-neutral-800 transition disabled:opacity-60"
           >
-            {loading ? "Guardando..." : "Crear empresa y entrar al dashboard"}
+            {loading
+              ? "Guardando..."
+              : "Continuar a conexión de WhatsApp"}
           </button>
         </form>
       </div>

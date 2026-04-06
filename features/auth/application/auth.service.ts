@@ -9,8 +9,10 @@ export const authService = {
     authRepository.verifyEmailOtp(email, token),
   signInWithPassword: (email: string, password: string) =>
     authRepository.signInWithPassword(email, password),
-  signUp: (email: string, password: string) =>
-    authRepository.signUp(email, password),
+  signUp: (email: string, password: string, emailRedirectTo?: string) =>
+    authRepository.signUp(email, password, emailRedirectTo),
+  resendSignupConfirmation: (email: string, emailRedirectTo?: string) =>
+    authRepository.resendSignupConfirmation(email, emailRedirectTo),
   signInWithGoogle: (redirectTo: string) =>
     authRepository.signInWithGoogle(redirectTo),
   requestPasswordReset: (email: string, redirectTo: string) =>
