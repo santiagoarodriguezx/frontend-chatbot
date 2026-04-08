@@ -195,6 +195,8 @@ export interface AdminOverview {
   recent_companies: Company[];
 }
 
+export type DashboardMode = "usuario" | "administrador";
+
 export type AdminCompanyCreateInput = {
   name: string;
   slug: string;

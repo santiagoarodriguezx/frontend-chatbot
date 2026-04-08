@@ -52,7 +52,7 @@ function LoginPageContent() {
     }
 
     if (bootstrap.is_admin) {
-      router.replace("/dashboard/admin/companies");
+      router.replace("/dashboard/admin");
       return;
     }
 
