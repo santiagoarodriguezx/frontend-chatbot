@@ -50,7 +50,7 @@ export function AppModal({
       aria-modal="true"
     >
       <div
-        className={`w-full ${maxWidthClassName} bg-white rounded-2xl border border-neutral-200/60 shadow-2xl animate-scale-in`}
+        className={`w-full ${maxWidthClassName} max-h-[90vh] overflow-y-auto bg-white rounded-2xl border border-neutral-200/60 shadow-2xl animate-scale-in`}
         onClick={(event) => event.stopPropagation()}
       >
         {(title || closeOnBackdrop) && (

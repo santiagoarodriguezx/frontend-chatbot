@@ -68,10 +68,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-neutral-950 tracking-tight">
-          Overview
+          Resumen
         </h1>
         <p className="text-neutral-500 mt-1 text-sm">
-          Real-time metrics for your AI agent
+          Métricas en tiempo real de tu agente de IA
         </p>
       </div>
 
@@ -85,31 +85,31 @@ export default function DashboardPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 mb-10">
           <MetricCard
-            title="Conversations"
+            title="Conversaciones"
             value={metrics?.total_conversations ?? 0}
             icon={MessageSquare}
             index={0}
           />
           <MetricCard
-            title="Messages"
+            title="Mensajes"
             value={metrics?.total_messages ?? 0}
             icon={MessageCircle}
             index={1}
           />
           <MetricCard
-            title="Orders"
+            title="Pedidos"
             value={metrics?.total_orders ?? 0}
             icon={ShoppingCart}
             index={2}
           />
           <MetricCard
-            title="Appointments"
+            title="Citas"
             value={metrics?.total_appointments ?? 0}
             icon={Calendar}
             index={3}
           />
           <MetricCard
-            title="Revenue"
+            title="Ingresos"
             value={`$${(metrics?.total_revenue ?? 0).toFixed(2)}`}
             icon={DollarSign}
             index={4}
@@ -120,25 +120,25 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div className="animate-fade-in-up delay-500">
         <h2 className="text-sm font-semibold uppercase tracking-widest text-neutral-400 mb-4">
-          Quick Start
+          Acciones rápidas
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             {
-              title: "Configure Agent",
-              desc: "Set up your AI assistant's name, prompt and behavior",
+              title: "Configurar agente",
+              desc: "Ajusta el nombre, prompt y comportamiento del asistente",
               href: "/dashboard/agent",
               icon: Zap,
             },
             {
-              title: "Manage Catalog",
-              desc: "Add products your agent can recommend and sell",
+              title: "Gestionar catálogo",
+              desc: "Agrega productos que tu agente pueda recomendar y vender",
               href: "/dashboard/catalog",
               icon: Package,
             },
             {
-              title: "View Conversations",
-              desc: "Monitor real-time chats between your agent and customers",
+              title: "Ver conversaciones",
+              desc: "Monitorea los chats en tiempo real entre clientes y agente",
               href: "/dashboard/conversations",
               icon: MessageSquare,
             },

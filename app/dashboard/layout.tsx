@@ -5,11 +5,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { RefreshCcw } from "lucide-react";
 import { SWRConfig, useSWRConfig } from "swr";
 import { Sidebar } from "@/components/sidebar";
+import { DashboardModeSwitcher } from "@/components/dashboard-mode-switcher";
 import { CompanyProvider } from "@/lib/company-context";
 import { companiesApi } from "@/lib/api";
+import type { Company, DashboardMode } from "@/lib/types";
 import { authService } from "@/features/auth/application/auth.service";
 
 const CONNECTED_STATES = new Set(["connected", "open", "online"]);
+const DASHBOARD_MODE_STORAGE_KEY = "dashboard-mode";
 const DASHBOARD_SWR_CONFIG = {
   revalidateOnFocus: false,
   revalidateOnReconnect: true,
@@ -61,12 +64,19 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [isReady, setIsReady] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [mode, setMode] = useState<DashboardMode>("usuario");
   const [isWhatsappConnected, setIsWhatsappConnected] = useState<
     boolean | null
   >(null);
 
   const isAdminRoute = pathname.startsWith("/dashboard/admin");
+  const isAdminMode = isAdmin && mode === "administrador";
+  const canSwitchToUserMode = Boolean(companyId);
+  const isModeRouteMismatch =
+    (isAdmin && isAdminMode && !isAdminRoute) ||
+    (isAdmin && !isAdminMode && isAdminRoute);
 
   useEffect(() => {
     let isMounted = true;
@@ -86,7 +96,7 @@ export default function DashboardLayout({
         if (!isMounted) return;
 
         let connected: boolean | null = null;
-        if (!data.is_admin && data.company?.id) {
+        if (data.company?.id) {
           try {
             const status = await companiesApi.getStatus(data.company.id);
             connected = CONNECTED_STATES.has(
@@ -99,8 +109,33 @@ export default function DashboardLayout({
           }
         }
 
+        const hasCompany = Boolean(data.company?.id);
+        let nextMode: DashboardMode = "usuario";
+
+        if (data.is_admin) {
+          const persistedMode =
+            typeof window !== "undefined"
+              ? window.localStorage.getItem(DASHBOARD_MODE_STORAGE_KEY)
+              : null;
+
+          if (
+            persistedMode === "usuario" ||
+            persistedMode === "administrador"
+          ) {
+            nextMode = persistedMode;
+          } else {
+            nextMode = "administrador";
+          }
+
+          if (!hasCompany && nextMode === "usuario") {
+            nextMode = "administrador";
+          }
+        }
+
         setIsAdmin(data.is_admin);
+        setCompany(data.company ?? null);
         setCompanyId(data.company?.id ?? null);
+        setMode(nextMode);
         setIsWhatsappConnected(connected);
         setIsReady(true);
       } catch {
@@ -125,31 +160,70 @@ export default function DashboardLayout({
   }, [router]);
 
   useEffect(() => {
+    if (!isReady || !isAdmin || typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(DASHBOARD_MODE_STORAGE_KEY, mode);
+  }, [isAdmin, isReady, mode]);
+
+  useEffect(() => {
     if (!isReady) return;
+
+    if (isAdminRoute && isAdmin && !isAdminMode) {
+      setMode("administrador");
+      return;
+    }
 
     if (isAdminRoute && !isAdmin) {
       router.replace(companyId ? "/dashboard" : "/onboarding");
       return;
     }
 
-    if (!isAdminRoute && !companyId) {
-      if (isAdmin) {
-        router.replace("/dashboard/admin/companies");
-      } else {
-        router.replace("/onboarding");
+    if (isAdmin) {
+      if (isAdminMode && !isAdminRoute) {
+        router.replace("/dashboard/admin");
+        return;
       }
+
+      if (!isAdminMode && isAdminRoute) {
+        router.replace(companyId ? "/dashboard" : "/dashboard/admin");
+        return;
+      }
+
+      if (!isAdminMode && !companyId) {
+        router.replace("/dashboard/admin");
+        return;
+      }
+    } else if (!companyId && !isAdminRoute) {
+      router.replace("/onboarding");
       return;
     }
 
     if (
+      !isAdminMode &&
       !isAdminRoute &&
-      !isAdmin &&
       companyId &&
       isWhatsappConnected === false
     ) {
       router.replace("/setup-whatsapp");
     }
-  }, [companyId, isAdmin, isAdminRoute, isReady, isWhatsappConnected, router]);
+  }, [
+    companyId,
+    isAdmin,
+    isAdminMode,
+    isAdminRoute,
+    isReady,
+    isWhatsappConnected,
+    router,
+  ]);
+
+  function handleModeChange(nextMode: DashboardMode) {
+    if (nextMode === "usuario" && !canSwitchToUserMode) {
+      return;
+    }
+    setMode(nextMode);
+  }
 
   if (!isReady) {
     return (
@@ -159,14 +233,29 @@ export default function DashboardLayout({
     );
   }
 
-  if (isAdminRoute) {
+  if (isModeRouteMismatch) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-500 text-sm">
+        Redirigiendo...
+      </div>
+    );
+  }
+
+  if (isAdminMode) {
     return (
       <SWRConfig value={DASHBOARD_SWR_CONFIG}>
         <div className="flex min-h-screen bg-neutral-50/50">
-          <Sidebar isAdmin={isAdmin} />
+          <Sidebar isAdmin={isAdmin} company={company} mode={mode} />
           <main className="flex-1 overflow-auto p-8 lg:p-10">
             <div className="mx-auto max-w-7xl space-y-4">
-              <div className="flex justify-end">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {isAdmin && (
+                  <DashboardModeSwitcher
+                    mode={mode}
+                    canSwitchToUser={canSwitchToUserMode}
+                    onChange={handleModeChange}
+                  />
+                )}
                 <DashboardRefreshButton />
               </div>
               {children}
@@ -189,10 +278,17 @@ export default function DashboardLayout({
     <SWRConfig value={DASHBOARD_SWR_CONFIG}>
       <CompanyProvider companyId={companyId}>
         <div className="flex min-h-screen bg-neutral-50/50">
-          <Sidebar isAdmin={isAdmin} />
+          <Sidebar isAdmin={isAdmin} company={company} mode={mode} />
           <main className="flex-1 overflow-auto p-8 lg:p-10">
             <div className="mx-auto max-w-7xl space-y-4">
-              <div className="flex justify-end">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {isAdmin && (
+                  <DashboardModeSwitcher
+                    mode={mode}
+                    canSwitchToUser={canSwitchToUserMode}
+                    onChange={handleModeChange}
+                  />
+                )}
                 <DashboardRefreshButton />
               </div>
               {children}

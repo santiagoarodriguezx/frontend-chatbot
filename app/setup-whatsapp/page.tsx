@@ -203,7 +203,7 @@ function SetupWhatsappPageContent() {
         if (!mounted) return;
 
         if (data.is_admin) {
-          router.replace("/dashboard/admin/companies");
+          router.replace("/dashboard/admin");
           return;
         }
 
