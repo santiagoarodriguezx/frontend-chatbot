@@ -38,6 +38,7 @@ function LoginPageContent() {
   const [mode, setMode] = useState<LoginMode>("login");
   const bootstrapCalled = useRef(false);
   const redirectingRef = useRef(false);
+  const otpHandshakeInProgressRef = useRef(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -70,6 +71,11 @@ function LoginPageContent() {
     const emailFromQuery = searchParams.get("email") ?? "";
     if (emailFromQuery) {
       setEmail(emailFromQuery);
+    }
+
+    const modeFromQuery = searchParams.get("mode");
+    if (modeFromQuery === "signup" || modeFromQuery === "login") {
+      setMode(modeFromQuery);
     }
   }, [searchParams]);
 
@@ -109,6 +115,9 @@ function LoginPageContent() {
       data: { subscription },
     } = authService.onAuthStateChange((event, session) => {
       if (!mounted || !session) return;
+
+      // Ignore transient password session used only to trigger OTP login.
+      if (otpHandshakeInProgressRef.current) return;
 
       if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
         void safeRedirectAfterAuth();
@@ -169,12 +178,15 @@ function LoginPageContent() {
     }
 
     if (mode === "login") {
+      otpHandshakeInProgressRef.current = true;
+
       const { error: signInError } = await authService.signInWithPassword(
         normalizedEmail,
         password,
       );
 
       if (signInError) {
+        otpHandshakeInProgressRef.current = false;
         setError(
           signInError.message === "Invalid login credentials"
             ? "Contraseña o datos inválidos."
@@ -186,6 +198,7 @@ function LoginPageContent() {
 
       const { error: signOutError } = await authService.signOut();
       if (signOutError) {
+        otpHandshakeInProgressRef.current = false;
         setError(signOutError.message);
         setLoading(false);
         return;
@@ -200,6 +213,7 @@ function LoginPageContent() {
       setLoading(false);
 
       if (otpError) {
+        otpHandshakeInProgressRef.current = false;
         setError(otpError.message);
         return;
       }
@@ -209,9 +223,11 @@ function LoginPageContent() {
       return;
     }
 
+    const signupRedirectTo = `${window.location.origin}/onboarding`;
     const { data, error: signUpError } = await authService.signUp(
       normalizedEmail,
       password,
+      signupRedirectTo,
     );
 
     setLoading(false);
@@ -244,12 +260,6 @@ function LoginPageContent() {
     setOauthLoading(true);
     setError(null);
     setSuccess(null);
-
-    const captchaOk = await verifyRecaptchaIfNeeded();
-    if (!captchaOk) {
-      setOauthLoading(false);
-      return;
-    }
 
     const redirectTo = `${window.location.origin}/login`;
     const { error: oauthError } =
