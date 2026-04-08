@@ -12,8 +12,9 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [pendingConfirmationEmail, setPendingConfirmationEmail] =
-    useState<string | null>(null);
+  const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState<
+    string | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -30,9 +31,11 @@ export default function RegisterPage() {
     );
   }
 
-  function isObfuscatedExistingUserResponse(user: {
-    identities?: Array<unknown> | null;
-  } | null) {
+  function isObfuscatedExistingUserResponse(
+    user: {
+      identities?: Array<unknown> | null;
+    } | null,
+  ) {
     return Boolean(
       user && Array.isArray(user.identities) && user.identities.length === 0,
     );

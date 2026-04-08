@@ -14,24 +14,32 @@ import {
   LogOut,
   Building2,
   ShieldCheck,
+  Ghost,
+  Brain,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase-browser";
-
+import { useState, useEffect } from "react";
+import { companiesApi } from "@/lib/api";
+import type { Company } from "@/lib/types";
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/agent", label: "Agent", icon: Bot },
-  { href: "/dashboard/instance", label: "WhatsApp Instance", icon: QrCode },
-  { href: "/dashboard/tools", label: "Tools", icon: Wrench },
-  { href: "/dashboard/catalog", label: "Catalog", icon: Package },
-  { href: "/dashboard/knowledge", label: "Knowledge Base", icon: BookOpen },
+  { href: "/dashboard", label: "Resumen", icon: LayoutDashboard },
+  { href: "/dashboard/agent", label: "Agente", icon: Ghost },
+  { href: "/dashboard/instance", label: "Instancia de WhatsApp", icon: QrCode },
+  { href: "/dashboard/tools", label: "Herramientas", icon: Wrench },
+  { href: "/dashboard/catalog", label: "Catálogo", icon: Package },
+  {
+    href: "/dashboard/knowledge",
+    label: "Base de Conocimiento",
+    icon: Brain,
+  },
   {
     href: "/dashboard/conversations",
-    label: "Conversations",
+    label: "Conversaciones",
     icon: MessageSquare,
   },
-  { href: "/dashboard/appointments", label: "Appointments", icon: Calendar },
-  { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/dashboard/appointments", label: "Citas", icon: Calendar },
+  { href: "/dashboard/orders", label: "Pedidos", icon: ShoppingCart },
 ];
 
 export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
@@ -56,6 +64,14 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
       icon: Building2,
     });
   }
+  const [company, setCompany] = useState<Company | null>(null);
+
+  useEffect(() => {
+    companiesApi
+      .getMine()
+      .then(setCompany)
+      .catch(() => {});
+  }, []);
 
   return (
     <aside className="w-[260px] min-h-screen bg-neutral-950 text-white flex flex-col animate-slide-in-left">
@@ -63,10 +79,11 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
       <div className="px-6 py-6 border-b border-neutral-800">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
-            <Bot className="w-5 h-5 text-neutral-950" />
+            <Ghost className="w-5 h-5 text-neutral-950" />
           </div>
-          <span className="text-lg font-semibold tracking-tight">
-            AgentSaaS
+          <span className="text-lg font-semibold tracking-tight">AURA</span>
+          <span className="text-xs text-neutral-500 tracking-widest uppercase">
+            Asistente Universal de Respuesta Automática
           </span>
         </div>
       </div>
@@ -113,11 +130,15 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
       <div className="px-5 py-4 border-t border-neutral-800">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold text-neutral-400">
-            AS
+            {company?.name?.slice(0, 2).toUpperCase() ?? ".."}
           </div>
           <div>
-            <p className="text-xs font-medium text-neutral-300">AgentSaaS</p>
-            <p className="text-[10px] text-neutral-600">v1.0.0</p>
+            <p className="text-xs font-medium text-neutral-300">
+              {company?.name ?? "..."}
+            </p>
+            <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-neutral-800 text-neutral-400">
+              {company?.plan ?? "..."}
+            </span>
           </div>
         </div>
 

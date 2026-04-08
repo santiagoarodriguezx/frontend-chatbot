@@ -131,7 +131,11 @@ function LoginPageContent() {
       );
 
       if (signInError) {
-        setError(signInError.message);
+        setError(
+          signInError.message === "Invalid login credentials"
+            ? "Contraseña o datos inválidos."
+            : signInError.message,
+        );
         setLoading(false);
         return;
       }

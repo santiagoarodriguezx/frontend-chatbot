@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { companiesApi } from "@/lib/api";
 import { authService } from "@/features/auth/application/auth.service";
 
-type PlanType = "free" | "pro" | "business";
+type PlanType = "free";
 
 function slugify(input: string) {
   return input
@@ -93,6 +93,12 @@ export default function OnboardingPage() {
     }
   }
 
+  // NUEVA FUNCIÓN: Maneja el cierre de sesión
+  async function handleSignOut() {
+    await authService.signOut();
+    router.replace("/login");
+  }
+
   if (initialLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-500 text-sm">
@@ -102,6 +108,7 @@ export default function OnboardingPage() {
   }
 
   return (
+    // Modificamos el main main para que use flex-col o flex-row dependiendo del tamaño de pantalla
     <main className="min-h-screen bg-neutral-50 flex items-center justify-center p-6">
       <div className="w-full max-w-xl bg-white border border-neutral-200 rounded-2xl shadow-sm p-8">
         <h1 className="text-2xl font-bold text-neutral-950">
@@ -142,19 +149,17 @@ export default function OnboardingPage() {
           </div>
 
           <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                Plan
-              </label>
-              <select
-                value={plan}
-                onChange={(e) => setPlan(e.target.value as PlanType)}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-950 bg-white"
-              >
-                <option value="free">free</option>
-                <option value="pro">pro</option>
-                <option value="business">business</option>
-              </select>
-            </div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              Plan
+            </label>
+            <select
+              value={plan}
+              onChange={(e) => setPlan(e.target.value as PlanType)}
+              className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-950 bg-white"
+            >
+              <option value="free">free</option>
+            </select>
+          </div>
 
           {error && (
             <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
@@ -167,9 +172,15 @@ export default function OnboardingPage() {
             disabled={loading}
             className="w-full rounded-xl bg-neutral-950 text-white py-2.5 text-sm font-medium hover:bg-neutral-800 transition disabled:opacity-60"
           >
-            {loading
-              ? "Guardando..."
-              : "Continuar a conexión de WhatsApp"}
+            {loading ? "Guardando..." : "Continuar a conexión de WhatsApp"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="w-full rounded-xl border border-red-200 bg-white text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors"
+          >
+            Cerrar sesión
           </button>
         </form>
       </div>
