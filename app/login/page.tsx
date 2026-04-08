@@ -4,7 +4,9 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { RecaptchaWidget } from "@/components/recaptcha-widget";
 import { companiesApi } from "@/lib/api";
+import { apiFetch } from "@/lib/utils";
 import { authService } from "@/features/auth/application/auth.service";
 
 type LoginMode = "login" | "signup";
@@ -42,6 +44,11 @@ function LoginPageContent() {
   const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaResetKey, setRecaptchaResetKey] = useState(0);
+
+  const recaptchaSiteKey =
+    process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY?.trim() ?? "";
 
   const redirectAfterAuth = useCallback(async () => {
     const bootstrap = await companiesApi.bootstrap();
@@ -116,6 +123,37 @@ function LoginPageContent() {
     };
   }, [redirectAfterAuth]);
 
+  const verifyRecaptchaIfNeeded = useCallback(async (): Promise<boolean> => {
+    if (!recaptchaSiteKey) {
+      setError(
+        "Falta NEXT_PUBLIC_RECAPTCHA_SITE_KEY. Configura la clave publica para login web.",
+      );
+      return false;
+    }
+
+    if (!recaptchaToken) {
+      setError("Completa el reCAPTCHA para continuar.");
+      return false;
+    }
+
+    try {
+      await apiFetch<{ success: boolean }>("/auth/recaptcha/verify", {
+        method: "POST",
+        body: JSON.stringify({ "g-recaptcha-response": recaptchaToken }),
+      });
+      return true;
+    } catch (verifyError) {
+      setError(
+        verifyError instanceof Error
+          ? verifyError.message
+          : "No se pudo validar reCAPTCHA.",
+      );
+      setRecaptchaToken(null);
+      setRecaptchaResetKey((previous) => previous + 1);
+      return false;
+    }
+  }, [recaptchaSiteKey, recaptchaToken]);
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
@@ -123,6 +161,12 @@ function LoginPageContent() {
     setSuccess(null);
 
     const normalizedEmail = normalizeEmail(email);
+
+    const captchaOk = await verifyRecaptchaIfNeeded();
+    if (!captchaOk) {
+      setLoading(false);
+      return;
+    }
 
     if (mode === "login") {
       const { error: signInError } = await authService.signInWithPassword(
@@ -200,6 +244,12 @@ function LoginPageContent() {
     setOauthLoading(true);
     setError(null);
     setSuccess(null);
+
+    const captchaOk = await verifyRecaptchaIfNeeded();
+    if (!captchaOk) {
+      setOauthLoading(false);
+      return;
+    }
 
     const redirectTo = `${window.location.origin}/login`;
     const { error: oauthError } =
@@ -295,6 +345,12 @@ function LoginPageContent() {
               {success}
             </p>
           )}
+
+          <RecaptchaWidget
+            siteKey={recaptchaSiteKey}
+            resetKey={recaptchaResetKey}
+            onTokenChange={setRecaptchaToken}
+          />
 
           <button
             type="submit"
