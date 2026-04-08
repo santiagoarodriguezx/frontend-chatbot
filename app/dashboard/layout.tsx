@@ -74,6 +74,9 @@ export default function DashboardLayout({
   const isAdminRoute = pathname.startsWith("/dashboard/admin");
   const isAdminMode = isAdmin && mode === "administrador";
   const canSwitchToUserMode = Boolean(companyId);
+  const isModeRouteMismatch =
+    (isAdmin && isAdminMode && !isAdminRoute) ||
+    (isAdmin && !isAdminMode && isAdminRoute);
 
   useEffect(() => {
     let isMounted = true;
@@ -115,7 +118,10 @@ export default function DashboardLayout({
               ? window.localStorage.getItem(DASHBOARD_MODE_STORAGE_KEY)
               : null;
 
-          if (persistedMode === "usuario" || persistedMode === "administrador") {
+          if (
+            persistedMode === "usuario" ||
+            persistedMode === "administrador"
+          ) {
             nextMode = persistedMode;
           } else {
             nextMode = "administrador";
@@ -163,6 +169,11 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!isReady) return;
+
+    if (isAdminRoute && isAdmin && !isAdminMode) {
+      setMode("administrador");
+      return;
+    }
 
     if (isAdminRoute && !isAdmin) {
       router.replace(companyId ? "/dashboard" : "/onboarding");
@@ -218,6 +229,14 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-500 text-sm">
         Cargando dashboard...
+      </div>
+    );
+  }
+
+  if (isModeRouteMismatch) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-500 text-sm">
+        Redirigiendo...
       </div>
     );
   }
