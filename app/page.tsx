@@ -17,7 +17,7 @@ export default function Home() {
 
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <Link
-            href="/register"
+            href="/login?mode=signup"
             className="rounded-xl bg-neutral-950 text-white px-5 py-2.5 text-sm font-medium hover:bg-neutral-800 transition"
           >
             Registrarme
