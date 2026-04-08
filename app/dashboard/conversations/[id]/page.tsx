@@ -112,7 +112,9 @@ export default function ConversationDetailPage({
         {isLoading && (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="w-6 h-6 border-2 border-neutral-200 border-t-neutral-950 rounded-full animate-spin" />
-            <p className="text-neutral-400 text-sm mt-3">Loading messages…</p>
+            <p className="text-neutral-400 text-sm mt-3">
+              Cargando mensajes...
+            </p>
           </div>
         )}
         {(messages ?? []).map((msg, i) => (
@@ -120,7 +122,7 @@ export default function ConversationDetailPage({
         ))}
         {!isLoading && (messages ?? []).length === 0 && (
           <p className="text-neutral-400 text-sm text-center py-10">
-            No messages in this conversation
+            Ningun mensaje en esta conversación aun.
           </p>
         )}
       </div>
