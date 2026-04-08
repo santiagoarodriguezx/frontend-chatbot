@@ -37,12 +37,14 @@ type RecaptchaWidgetProps = {
   onTokenChange: (token: string | null) => void;
 };
 
-const RECAPTCHA_SCRIPT_SRC = "https://www.google.com/recaptcha/api.js?render=explicit";
+const RECAPTCHA_SCRIPT_SRC =
+  "https://www.google.com/recaptcha/api.js?render=explicit";
 
 function getRecaptchaApi() {
   const render =
     window.grecaptcha?.render ?? window.grecaptcha?.enterprise?.render;
-  const reset = window.grecaptcha?.reset ?? window.grecaptcha?.enterprise?.reset;
+  const reset =
+    window.grecaptcha?.reset ?? window.grecaptcha?.enterprise?.reset;
   return { render, reset };
 }
 
@@ -117,7 +119,8 @@ export function RecaptchaWidget({
     script.addEventListener("load", onLoad);
     document.head.appendChild(script);
 
-    scriptListenerRef.current = () => script.removeEventListener("load", onLoad);
+    scriptListenerRef.current = () =>
+      script.removeEventListener("load", onLoad);
 
     return () => {
       scriptListenerRef.current?.();
