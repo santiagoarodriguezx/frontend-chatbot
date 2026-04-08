@@ -7,7 +7,6 @@ import type {
   AdminUserCreateInput,
   AdminUserUpdateInput,
   Company,
-  EvolutionInstanceStatusOut,
 } from "@/lib/types";
 
 export const adminGlobalRepository = {
@@ -37,12 +36,6 @@ export const adminGlobalRepository = {
     return apiFetch<void>(`/companies/${companyId}`, {
       method: "DELETE",
     });
-  },
-
-  getCompanyInstanceStatus(companyId: string) {
-    return apiFetch<EvolutionInstanceStatusOut>(
-      `/companies/${companyId}/instance/status`,
-    );
   },
 
   listUsers() {
