@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { RecaptchaWidget } from "@/components/recaptcha-widget";
 import { companiesApi } from "@/lib/api";
+import { apiFetch } from "@/lib/utils";
 import { authService } from "@/features/auth/application/auth.service";
 
 export default function RegisterPage() {
@@ -17,6 +19,11 @@ export default function RegisterPage() {
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaResetKey, setRecaptchaResetKey] = useState(0);
+
+  const recaptchaSiteKey =
+    process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY?.trim() ?? "";
 
   function normalizeEmail(value: string) {
     return value.trim().toLowerCase();
@@ -68,6 +75,37 @@ export default function RegisterPage() {
     }
   }
 
+  async function verifyRecaptchaIfNeeded(): Promise<boolean> {
+    if (!recaptchaSiteKey) {
+      setError(
+        "Falta NEXT_PUBLIC_RECAPTCHA_SITE_KEY. Configura la clave publica para registro web.",
+      );
+      return false;
+    }
+
+    if (!recaptchaToken) {
+      setError("Completa el reCAPTCHA para continuar.");
+      return false;
+    }
+
+    try {
+      await apiFetch<{ success: boolean }>("/auth/recaptcha/verify", {
+        method: "POST",
+        body: JSON.stringify({ "g-recaptcha-response": recaptchaToken }),
+      });
+      return true;
+    } catch (verifyError) {
+      setError(
+        verifyError instanceof Error
+          ? verifyError.message
+          : "No se pudo validar reCAPTCHA.",
+      );
+      setRecaptchaToken(null);
+      setRecaptchaResetKey((previous) => previous + 1);
+      return false;
+    }
+  }
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
@@ -76,6 +114,13 @@ export default function RegisterPage() {
     setPendingConfirmationEmail(null);
 
     const normalizedEmail = normalizeEmail(email);
+
+    const captchaOk = await verifyRecaptchaIfNeeded();
+    if (!captchaOk) {
+      setLoading(false);
+      return;
+    }
+
     const emailRedirectTo = `${window.location.origin}/login`;
     const { data, error: signUpError } = await authService.signUp(
       normalizedEmail,
@@ -180,6 +225,12 @@ export default function RegisterPage() {
           >
             {loading ? "Creando cuenta..." : "Crear cuenta"}
           </button>
+
+          <RecaptchaWidget
+            siteKey={recaptchaSiteKey}
+            resetKey={recaptchaResetKey}
+            onTokenChange={setRecaptchaToken}
+          />
         </form>
 
         {error && (
