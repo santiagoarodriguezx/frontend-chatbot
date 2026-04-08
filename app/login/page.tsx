@@ -71,6 +71,11 @@ function LoginPageContent() {
     if (emailFromQuery) {
       setEmail(emailFromQuery);
     }
+
+    const modeFromQuery = searchParams.get("mode");
+    if (modeFromQuery === "signup" || modeFromQuery === "login") {
+      setMode(modeFromQuery);
+    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -209,9 +214,11 @@ function LoginPageContent() {
       return;
     }
 
+    const signupRedirectTo = `${window.location.origin}/onboarding`;
     const { data, error: signUpError } = await authService.signUp(
       normalizedEmail,
       password,
+      signupRedirectTo,
     );
 
     setLoading(false);
@@ -244,12 +251,6 @@ function LoginPageContent() {
     setOauthLoading(true);
     setError(null);
     setSuccess(null);
-
-    const captchaOk = await verifyRecaptchaIfNeeded();
-    if (!captchaOk) {
-      setOauthLoading(false);
-      return;
-    }
 
     const redirectTo = `${window.location.origin}/login`;
     const { error: oauthError } =
