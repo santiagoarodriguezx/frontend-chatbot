@@ -5,8 +5,12 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AgentSaaS Dashboard",
-  description: "Multi-tenant AI sales/service agents over WhatsApp",
+  title: "AURA - Dashboard",
+  description:
+    "Configura tu whatsapp business con AURA y automatiza tu atención al cliente, ventas y reservas en un solo lugar.",
+  icons: {
+    icon: "./public/logo-aura.JPG",
+  },
 };
 
 export default function RootLayout({
