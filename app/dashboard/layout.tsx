@@ -7,6 +7,7 @@ import { SWRConfig, useSWRConfig } from "swr";
 import { Sidebar } from "@/components/sidebar";
 import { CompanyProvider } from "@/lib/company-context";
 import { companiesApi } from "@/lib/api";
+import type { Company } from "@/lib/types";
 import { authService } from "@/features/auth/application/auth.service";
 
 const CONNECTED_STATES = new Set(["connected", "open", "online"]);
@@ -61,6 +62,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [isReady, setIsReady] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isWhatsappConnected, setIsWhatsappConnected] = useState<
     boolean | null
@@ -100,6 +102,7 @@ export default function DashboardLayout({
         }
 
         setIsAdmin(data.is_admin);
+        setCompany(data.company ?? null);
         setCompanyId(data.company?.id ?? null);
         setIsWhatsappConnected(connected);
         setIsReady(true);
@@ -163,7 +166,7 @@ export default function DashboardLayout({
     return (
       <SWRConfig value={DASHBOARD_SWR_CONFIG}>
         <div className="flex min-h-screen bg-neutral-50/50">
-          <Sidebar isAdmin={isAdmin} />
+          <Sidebar isAdmin={isAdmin} company={company} />
           <main className="flex-1 overflow-auto p-8 lg:p-10">
             <div className="mx-auto max-w-7xl space-y-4">{children}</div>
           </main>
@@ -184,7 +187,7 @@ export default function DashboardLayout({
     <SWRConfig value={DASHBOARD_SWR_CONFIG}>
       <CompanyProvider companyId={companyId}>
         <div className="flex min-h-screen bg-neutral-50/50">
-          <Sidebar isAdmin={isAdmin} />
+          <Sidebar isAdmin={isAdmin} company={company} />
           <main className="flex-1 overflow-auto p-8 lg:p-10">
             <div className="mx-auto max-w-7xl space-y-4">
               <div className="flex justify-end">

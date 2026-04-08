@@ -9,8 +9,6 @@ import type {
 } from "@/lib/types";
 import { adminGlobalRepository } from "../data/admin-global.repository";
 
-const CONNECTED_STATES = new Set(["connected", "open", "online"]);
-
 function normalizeNullableText(value?: string | null): string | null {
   if (value == null) {
     return null;
@@ -44,7 +42,9 @@ function normalizeCompanyUpdateInput(
   };
 }
 
-function normalizeUserCreateInput(draft: AdminUserCreateInput): AdminUserCreateInput {
+function normalizeUserCreateInput(
+  draft: AdminUserCreateInput,
+): AdminUserCreateInput {
   const payload: AdminUserCreateInput = {
     email: draft.email.trim().toLowerCase(),
     role: draft.role,
@@ -62,7 +62,9 @@ function normalizeUserCreateInput(draft: AdminUserCreateInput): AdminUserCreateI
   return payload;
 }
 
-function normalizeUserUpdateInput(draft: AdminUserUpdateInput): AdminUserUpdateInput {
+function normalizeUserUpdateInput(
+  draft: AdminUserUpdateInput,
+): AdminUserUpdateInput {
   const payload: AdminUserUpdateInput = {};
 
   if (draft.role) payload.role = draft.role;
@@ -70,50 +72,6 @@ function normalizeUserUpdateInput(draft: AdminUserUpdateInput): AdminUserUpdateI
   if (draft.company_ids) payload.company_ids = draft.company_ids;
 
   return payload;
-}
-
-async function countConnectedInstances(companies: Company[]): Promise<number> {
-  const companiesWithInstance = companies.filter((company) =>
-    Boolean(company.whatsapp_instance_name?.trim()),
-  );
-
-  if (companiesWithInstance.length === 0) {
-    return 0;
-  }
-
-  const statusResults = await Promise.allSettled(
-    companiesWithInstance.map((company) =>
-      adminGlobalRepository.getCompanyInstanceStatus(company.id),
-    ),
-  );
-
-  let connected = 0;
-
-  for (const result of statusResults) {
-    if (result.status !== "fulfilled") {
-      continue;
-    }
-
-    const state = String(result.value.state || "")
-      .trim()
-      .toLowerCase();
-
-    if (CONNECTED_STATES.has(state)) {
-      connected += 1;
-    }
-  }
-
-  return connected;
-}
-
-function countByPlan(companies: Company[]): Record<string, number> {
-  const summary: Record<string, number> = {};
-
-  for (const company of companies) {
-    summary[company.plan] = (summary[company.plan] ?? 0) + 1;
-  }
-
-  return summary;
 }
 
 export const adminGlobalService = {
@@ -126,7 +84,10 @@ export const adminGlobalService = {
     return adminGlobalRepository.createCompany(payload);
   },
 
-  updateCompany(companyId: string, draft: AdminCompanyUpdateInput): Promise<Company> {
+  updateCompany(
+    companyId: string,
+    draft: AdminCompanyUpdateInput,
+  ): Promise<Company> {
     const payload = normalizeCompanyUpdateInput(draft);
     return adminGlobalRepository.updateCompany(companyId, payload);
   },
@@ -135,23 +96,8 @@ export const adminGlobalService = {
     return adminGlobalRepository.deleteCompany(companyId);
   },
 
-  async getOverview(): Promise<AdminOverview> {
-    const companies = await adminGlobalRepository.listCompanies();
-    const connectedInstances = await countConnectedInstances(companies);
-    const companiesWithInstance = companies.filter((company) =>
-      Boolean(company.whatsapp_instance_name?.trim()),
-    ).length;
-
-    return {
-      generated_at: new Date().toISOString(),
-      total_companies: companies.length,
-      active_companies: companies.filter((item) => item.is_active).length,
-      inactive_companies: companies.filter((item) => !item.is_active).length,
-      connected_instances: connectedInstances,
-      disconnected_instances: Math.max(companiesWithInstance - connectedInstances, 0),
-      companies_by_plan: countByPlan(companies),
-      recent_companies: companies.slice(0, 8),
-    };
+  getOverview(): Promise<AdminOverview> {
+    return adminGlobalRepository.getOverview();
   },
 
   listUsers(): Promise<AdminUser[]> {

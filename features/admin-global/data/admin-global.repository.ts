@@ -1,5 +1,6 @@
 import { apiFetch } from "@/lib/utils";
 import type {
+  AdminOverview,
   AdminCompanyCreateInput,
   AdminCompanyUpdateInput,
   AdminUser,
@@ -10,6 +11,10 @@ import type {
 } from "@/lib/types";
 
 export const adminGlobalRepository = {
+  getOverview() {
+    return apiFetch<AdminOverview>("/admin/overview");
+  },
+
   listCompanies() {
     return apiFetch<Company[]>("/companies/");
   },
