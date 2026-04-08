@@ -31,10 +31,11 @@ export default function OrdersPage() {
     <div className="animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-950 tracking-tight">
-          Orders
+          Ordenes
         </h1>
         <p className="text-sm text-neutral-500 mt-1">
-          Track and manage customer orders
+          Sigue y gestiona los pedidos realizados por tus clientes a través de
+          tu agente.
         </p>
       </div>
 
@@ -54,12 +55,12 @@ export default function OrdersPage() {
             <thead>
               <tr className="border-b border-neutral-100 bg-neutral-50/50">
                 {[
-                  "Order",
-                  "Customer",
-                  "Items",
+                  "Orden",
+                  "Cliente",
+                  "Productos",
                   "Total",
-                  "Status",
-                  "Date",
+                  "Estado",
+                  "Fecha",
                   "",
                 ].map((h) => (
                   <th
@@ -136,7 +137,9 @@ export default function OrdersPage() {
               <div className="w-14 h-14 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto mb-4">
                 <ShoppingCart className="w-7 h-7 text-neutral-300" />
               </div>
-              <p className="text-neutral-500 text-sm">No orders yet</p>
+              <p className="text-neutral-500 text-sm">
+                Todavia no hay ordenes.
+              </p>
             </div>
           )}
         </div>

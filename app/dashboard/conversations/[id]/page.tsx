@@ -98,9 +98,12 @@ export default function ConversationDetailPage({
           <ArrowLeft className="w-5 h-5 text-neutral-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-neutral-950">Chat History</h1>
+          <h1 className="text-xl font-bold text-neutral-950">
+            Historial de chat
+          </h1>
           <p className="text-xs text-neutral-400">
-            Refreshes when you return to the tab
+            Refresca para cargar nuevos mensajes. Las conversaciones se ordenan
+            por el último mensaje recibido.
           </p>
         </div>
       </div>

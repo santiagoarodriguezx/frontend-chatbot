@@ -137,17 +137,17 @@ export default function CatalogPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-neutral-950 tracking-tight">
-            Product Catalog
+            Catalogo de Productos
           </h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Manage products your agent can recommend
+            Administra los productos que tu agente puede ofrecer a los clientes
           </p>
         </div>
         <button
           onClick={() => setEditing("new")}
           className="flex items-center gap-2 bg-neutral-950 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors"
         >
-          <Plus className="w-4 h-4" /> Add Product
+          <Plus className="w-4 h-4" /> Añadir Producto
         </button>
       </div>
 
@@ -166,7 +166,7 @@ export default function CatalogPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-100 bg-neutral-50/50">
-                {["Name", "Category", "Price", "Stock", "Status", ""].map(
+                {["NOMBRE", "CATEGORIA", "PRECIO", "STOCK", "ESTADO", ""].map(
                   (h) => (
                     <th
                       key={h}
@@ -202,7 +202,7 @@ export default function CatalogPage() {
                           : "bg-neutral-100 text-neutral-500"
                       }`}
                     >
-                      {p.is_active ? "Active" : "Inactive"}
+                      {p.is_active ? "Activo" : "Inactivo"}
                     </span>
                   </td>
                   <td className="px-5 py-3.5">

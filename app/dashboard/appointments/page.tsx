@@ -29,10 +29,11 @@ export default function AppointmentsPage() {
     <div className="animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-950 tracking-tight">
-          Appointments
+          Citas
         </h1>
         <p className="text-sm text-neutral-500 mt-1">
-          Manage scheduled customer appointments
+          Configura y gestiona las citas que los clientes pueden reservar con tu
+          agente. Haz clic en cualquier cita para actualizar su estado.
         </p>
       </div>
 
@@ -52,11 +53,11 @@ export default function AppointmentsPage() {
             <thead>
               <tr className="border-b border-neutral-100 bg-neutral-50/50">
                 {[
-                  "Customer",
-                  "Service",
-                  "Date & Time",
-                  "Duration",
-                  "Status",
+                  "Cliente",
+                  "Servicio",
+                  "Fecha y Hora",
+                  "Duración",
+                  "Estado",
                   "",
                 ].map((h) => (
                   <th
@@ -94,11 +95,31 @@ export default function AppointmentsPage() {
                   <td className="px-5 py-3.5">
                     <span
                       className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
-                        STATUS_STYLES[a.status] ??
+                        STATUS_STYLES[
+                          (
+                            {
+                              pendiente: "pending",
+                              confirmado: "confirmed",
+                              cancelado: "cancelled",
+                              completado: "completed",
+                            } as Record<string, string>
+                          )[a.status] ?? a.status
+                        ] ??
                         "bg-neutral-100 text-neutral-500 border-neutral-200"
                       }`}
                     >
-                      {a.status}
+                      {(
+                        {
+                          pending: "Pendiente",
+                          confirmed: "Confirmado",
+                          cancelled: "Cancelado",
+                          completed: "Completado",
+                          pendiente: "Pendiente",
+                          confirmado: "Confirmado",
+                          cancelado: "Cancelado",
+                          completado: "Completado",
+                        } as Record<string, string>
+                      )[a.status] ?? a.status}
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
@@ -107,13 +128,16 @@ export default function AppointmentsPage() {
                       value={a.status}
                       onChange={(e) => updateStatus(a.id, e.target.value)}
                     >
-                      {["pending", "confirmed", "cancelled", "completed"].map(
-                        (s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ),
-                      )}
+                      {[
+                        "pendiente",
+                        "confirmado",
+                        "cancelado",
+                        "completado",
+                      ].map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
                     </select>
                   </td>
                 </tr>

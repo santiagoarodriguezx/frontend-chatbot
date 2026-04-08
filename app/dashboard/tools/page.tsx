@@ -106,7 +106,8 @@ export default function ToolsPage() {
           Tools
         </h1>
         <p className="text-sm text-neutral-500 mt-1">
-          Enable or disable agent capabilities — all loaded from database
+          Habilita y configura las herramientas que tu agente puede usar para
+          asistir a los clientes.
         </p>
       </div>
 

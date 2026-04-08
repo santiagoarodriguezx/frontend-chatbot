@@ -18,10 +18,12 @@ export default function ConversationsPage() {
     <div className="animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-950 tracking-tight">
-          Conversations
+          Conversaciones
         </h1>
         <p className="text-sm text-neutral-500 mt-1">
-          Monitor customer interactions with your agent
+          Monitoriza y gestiona las conversaciones entre tus clientes y tu
+          agente. Haz clic en cualquier conversación para ver el historial
+          completo y los detalles del cliente.
         </p>
       </div>
 
@@ -82,9 +84,12 @@ export default function ConversationsPage() {
               <div className="w-14 h-14 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto mb-4">
                 <MessageSquare className="w-7 h-7 text-neutral-300" />
               </div>
-              <p className="text-neutral-500 text-sm">No conversations yet</p>
+              <p className="text-neutral-500 text-sm">
+                Ninguna conversacion hasta ahora.
+              </p>
               <p className="text-neutral-400 text-xs mt-1">
-                Conversations will appear here when customers message your agent
+                Conversaciones entre clientes y tu agente aparecerán aquí para
+                que puedas
               </p>
             </div>
           )}

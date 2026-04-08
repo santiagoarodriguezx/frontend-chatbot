@@ -50,20 +50,21 @@ export default function KnowledgePage() {
     <div className="max-w-2xl animate-fade-in">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-950 tracking-tight">
-          Knowledge Base
+          Conocimiento del Agente
         </h1>
         <p className="text-sm text-neutral-500 mt-1">
-          Upload documents for RAG-powered responses
+          Sube documentos para que tu agente los use como referencia al asistir
+          a los clientes.
         </p>
       </div>
 
       {/* Upload */}
       <div className="bg-white rounded-2xl border border-neutral-200/60 p-6 mb-6 animate-fade-in-up">
         <h2 className="text-sm font-semibold text-neutral-700 mb-3">
-          Upload Document
+          Sube Documentos de Referencia
         </h2>
         <p className="text-xs text-neutral-400 mb-4">
-          Supported: PDF, DOCX, TXT, MD — auto-chunked and embedded
+          Soportado: PDF, DOCX, TXT, MD — auto-chunked y embebidos para RAG
         </p>
         <label className="flex flex-col items-center justify-center border-2 border-dashed border-neutral-200 rounded-2xl p-10 cursor-pointer hover:border-neutral-950 hover:bg-neutral-50/50 transition-all duration-300 group">
           <div className="p-3 rounded-xl bg-neutral-100 group-hover:bg-neutral-950 transition-colors duration-300 mb-3">
@@ -73,10 +74,10 @@ export default function KnowledgePage() {
             {uploading ? (
               <span className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-neutral-300 border-t-neutral-950 rounded-full animate-spin" />
-                Uploading and embedding…
+                Subiendo y procesando...
               </span>
             ) : (
-              "Click to select a file"
+              "Click para seleccionar un archivo o arrástralo aquí"
             )}
           </span>
           <input
