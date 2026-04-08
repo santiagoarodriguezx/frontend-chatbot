@@ -14,6 +14,7 @@ import {
   LogOut,
   Building2,
   ShieldCheck,
+  Users,
   Ghost,
   Brain,
 } from "lucide-react";
@@ -51,17 +52,35 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
     router.replace("/login");
   }
 
+  function isLinkActive(href: string): boolean {
+    if (pathname === href) {
+      return true;
+    }
+
+    // Keep parent entries exclusive so admin routes don't highlight two items.
+    if (href === "/dashboard" || href === "/dashboard/admin") {
+      return false;
+    }
+
+    return pathname.startsWith(`${href}/`);
+  }
+
   const items = [...navItems];
   if (isAdmin) {
     items.push({
       href: "/dashboard/admin",
-      label: "Global Admin",
+      label: "Admin Overview",
       icon: ShieldCheck,
     });
     items.push({
       href: "/dashboard/admin/companies",
       label: "Admin Companies",
       icon: Building2,
+    });
+    items.push({
+      href: "/dashboard/admin/users",
+      label: "Admin Users",
+      icon: Users,
     });
   }
   const [company, setCompany] = useState<Company | null>(null);
@@ -94,9 +113,7 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
           Menu
         </p>
         {items.map(({ href, label, icon: Icon }, i) => {
-          const active =
-            pathname === href ||
-            (href !== "/dashboard" && pathname.startsWith(href));
+          const active = isLinkActive(href);
           return (
             <Link
               key={href}

@@ -5,6 +5,7 @@ import { dashboardService } from "@/features/dashboard/application/dashboard.ser
 import { knowledgeService } from "@/features/knowledge/application/knowledge.service";
 import { modelsService } from "@/features/models/application/models.service";
 import { toolsService } from "@/features/tools/application/tools.service";
+import { adminGlobalService } from "@/features/admin-global/application/admin-global.service";
 
 export const companiesApi = {
   list: companiesService.list,
@@ -59,4 +60,16 @@ export const knowledgeApi = {
   list: knowledgeService.list,
   upload: knowledgeService.upload,
   delete: knowledgeService.delete,
+};
+
+export const adminApi = {
+  overview: adminGlobalService.getOverview,
+  listCompanies: adminGlobalService.listCompanies,
+  createCompany: adminGlobalService.createCompany,
+  updateCompany: adminGlobalService.updateCompany,
+  deleteCompany: adminGlobalService.deleteCompany,
+  listUsers: adminGlobalService.listUsers,
+  createUser: adminGlobalService.createUser,
+  updateUser: adminGlobalService.updateUser,
+  deleteUser: adminGlobalService.deleteUser,
 };

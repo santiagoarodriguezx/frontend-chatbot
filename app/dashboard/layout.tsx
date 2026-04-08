@@ -165,12 +165,7 @@ export default function DashboardLayout({
         <div className="flex min-h-screen bg-neutral-50/50">
           <Sidebar isAdmin={isAdmin} />
           <main className="flex-1 overflow-auto p-8 lg:p-10">
-            <div className="mx-auto max-w-7xl space-y-4">
-              <div className="flex justify-end">
-                <DashboardRefreshButton />
-              </div>
-              {children}
-            </div>
+            <div className="mx-auto max-w-7xl space-y-4">{children}</div>
           </main>
         </div>
       </SWRConfig>

@@ -183,3 +183,55 @@ export interface EvolutionInstanceDeleteOut {
   deleted: boolean;
   evolution: Record<string, unknown>;
 }
+
+export interface AdminOverview {
+  generated_at: string;
+  total_companies: number;
+  active_companies: number;
+  inactive_companies: number;
+  connected_instances: number;
+  disconnected_instances: number;
+  companies_by_plan: Record<string, number>;
+  recent_companies: Company[];
+}
+
+export type AdminCompanyCreateInput = {
+  name: string;
+  slug: string;
+  whatsapp_number?: string | null;
+  whatsapp_instance_name?: string | null;
+  plan?: Company["plan"];
+};
+
+export type AdminCompanyUpdateInput = Partial<
+  Pick<
+    Company,
+    "name" | "whatsapp_number" | "whatsapp_instance_name" | "plan" | "is_active"
+  >
+>;
+
+export type AdminUserRole = "admin" | "owner" | "member";
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: AdminUserRole;
+  is_active: boolean;
+  company_ids: string[];
+  created_at: string;
+  last_sign_in_at: string | null;
+}
+
+export type AdminUserCreateInput = {
+  email: string;
+  password?: string;
+  role: AdminUserRole;
+  is_active?: boolean;
+  company_ids?: string[];
+};
+
+export type AdminUserUpdateInput = {
+  role?: AdminUserRole;
+  is_active?: boolean;
+  company_ids?: string[];
+};
